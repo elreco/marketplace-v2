@@ -1,7 +1,7 @@
 export interface Review {
-  id: string
+  id?: string
   collection_id: string
-  user_id: string
+  user_id: `0x${string}`
   rating: number
   comment: string
 }
@@ -9,14 +9,6 @@ export interface Review {
 export type ApiResponse<T> = {
   error?: string
   data: T
-}
-
-export interface Review {
-  id: string
-  collection_id: string
-  user_id: string
-  rating: number
-  comment: string
 }
 
 export interface SupabaseDatabase {

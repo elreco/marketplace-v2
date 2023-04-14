@@ -13,7 +13,7 @@ import {
 } from '@reservoir0x/reservoir-kit-ui'
 import { paths } from '@reservoir0x/reservoir-sdk'
 import Layout from 'components/Layout'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useContext } from 'react'
 import { truncateAddress } from 'utils/truncate'
 import StatHeader from 'components/collections/StatHeader'
 import CollectionActions from 'components/collections/CollectionActions'
@@ -51,6 +51,7 @@ import Img from 'components/primitives/Img'
 import { ApiResponse, Review } from 'types'
 import { formatNumber } from 'utils/numbers'
 import WriteReview from 'components/buttons/WriteReview'
+import { ToastContext } from 'context/ToastContextProvider'
 
 type ActivityTypes = Exclude<
   NonNullable<
@@ -63,11 +64,14 @@ type ActivityTypes = Exclude<
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
+const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
+
 const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const router = useRouter()
   const { address } = useAccount()
   const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(false)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
+  const [isReviewLoading, setReviewLoading] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
   const [initialTokenFallbackData, setInitialTokenFallbackData] = useState(true)
   const isMounted = useMounted()
@@ -78,13 +82,41 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   >()
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const loadMoreObserver = useIntersectionObserver(loadMoreRef, {})
+  const { addToast } = useContext(ToastContext)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
-  const handleReviewSubmit = (rating: number, review: string) => {
-    console.log('Submitted review:', { rating, review })
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    setReviewLoading(true)
+    try {
+      if (!address || !id) {
+        return
+      }
+      const payload: Review = {
+         collection_id: id, 
+         rating, 
+         comment, 
+         user_id: address
+      }
+      await fetch(
+        `${HOST_URL}/api/reviews`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        })
+        addToast?.({
+          title: 'Your review has been added',
+          description: 'Thanks for submitting your review.',
+        })
+    } catch {
 
-    // Handle the submitted review data here
+    }
+
+    setReviewLoading(false)
+    
   }
 
   const scrollToTop = () => {
@@ -427,6 +459,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         }}
                       />
                       <WriteReview
+                        isLoading={isReviewLoading}
                         onReviewSubmit={handleReviewSubmit}
                         buttonCss={{
                           width: '100%',
@@ -624,7 +657,7 @@ export const getStaticProps: GetStaticProps<{
     tokensQuery,
     headers
   )
-  const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
+  
   const reviewsAverageRatingPromise = fetch(
     `${HOST_URL}/api/reviews/average?collectionId=${id}`
   )

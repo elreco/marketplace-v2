@@ -11,12 +11,14 @@ type Props = {
   buttonCss?: CSS
   buttonProps?: ComponentProps<typeof Button>
   onReviewSubmit?: (rating: number, review: string) => void
+  isLoading?: boolean
 }
 
 const WriteReview: FC<Props> = ({
   buttonCss,
   buttonProps = {},
   onReviewSubmit,
+  isLoading
 }) => {
   const { isDisconnected } = useAccount()
   const { data: signer } = useSigner()
@@ -33,7 +35,7 @@ const WriteReview: FC<Props> = ({
   const { openConnectModal } = useConnectModal()
 
   const [rating, setRating] = useState(0)
-  const [review, setReview] = useState('')
+  const [comment, setComment] = useState('')
 
   const handleRatingChange = (newRating: number) => {
     setRating(newRating)
@@ -43,7 +45,7 @@ const WriteReview: FC<Props> = ({
     e.preventDefault()
 
     if (onReviewSubmit) {
-      onReviewSubmit(rating, review)
+      onReviewSubmit(rating, comment)
     }
 
     setOpen(false)
@@ -74,7 +76,7 @@ const WriteReview: FC<Props> = ({
   }
 
   const trigger = (
-    <Button css={buttonCss} onClick={() => setOpen(true)} {...buttonProps}>
+    <Button disabled={isLoading} css={buttonCss} onClick={() => setOpen(true)} {...buttonProps}>
       Write a review
     </Button>
   )
@@ -106,8 +108,8 @@ const WriteReview: FC<Props> = ({
           </Box>
           <Box style={{ width: '100%' }}>
             <Input
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
               type="text"
               placeholder="Type your review..."
             />
