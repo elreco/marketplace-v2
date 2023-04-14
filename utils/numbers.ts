@@ -36,7 +36,6 @@ const truncateFractionAndFormat = (
 
       let formattedValue = ''
       for (let idx = 0; idx < value.length && idx < digits; idx++) {
-
         formattedValue += value[idx]
       }
       return formattedValue
@@ -59,9 +58,7 @@ function formatBN(
   if (typeof amount === 'undefined' || amount === null) return '-'
 
   const amountToFormat =
-    typeof amount === 'number'
-      ? amount
-      : +utils.formatUnits(amount, decimals)
+    typeof amount === 'number' ? amount : +utils.formatUnits(amount, decimals)
 
   if (amountToFormat === 0) {
     return amountToFormat
@@ -80,7 +77,7 @@ function formatBN(
   // New issue introduced in Safari v16 causes a regression and now need lessPrecision flagged in format options
   if (isSafari) {
     //@ts-ignore
-    formatOptions.roundingPriority = "lessPrecision"
+    formatOptions.roundingPriority = 'lessPrecision'
   }
 
   const parts = new Intl.NumberFormat('en-US', formatOptions).formatToParts(
@@ -112,8 +109,7 @@ function formatBN(
           }
         )
       }
-    } 
-    else if (!partsIncludesFraction && partsIncludeCompactIdentifier) {
+    } else if (!partsIncludesFraction && partsIncludeCompactIdentifier) {
       const compactIdentifier = parts.find((part) => part.type === 'compact')
       const integerIndex = parts.findIndex((part) => part.type === 'integer')
       const integer = parts[integerIndex]

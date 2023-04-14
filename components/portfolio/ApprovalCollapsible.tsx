@@ -163,8 +163,8 @@ export const ApprovalCollapsible: FC<Props> = ({
           <Flex css={{ gap: '$2' }}>
             <Flex align="center">
               <Img src={collectionImage} />
-              {marketplacesSeekingApproval.map((marketplace) => (
-                <Img src={marketplace.imageUrl} />
+              {marketplacesSeekingApproval.map((marketplace, index) => (
+                <Img key={index} src={marketplace.imageUrl} />
               ))}
             </Flex>
             <Text style="body2" ellipsify>

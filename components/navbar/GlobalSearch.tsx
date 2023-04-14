@@ -370,8 +370,9 @@ const GlobalSearch = forwardRef<
             {results &&
               results
                 .slice(0, 8)
-                .map((result) => (
+                .map((result, index) => (
                   <SearchResult
+                    key={index}
                     result={result}
                     handleSelectResult={handleSelectResult}
                   />

@@ -1,6 +1,16 @@
-import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
+import {
+  GetStaticPaths,
+  GetStaticProps,
+  InferGetStaticPropsType,
+  NextPage,
+} from 'next'
 import { Text, Flex, Box } from '../../../components/primitives'
-import { useCollections, useCollectionActivity, useDynamicTokens, useAttributes } from '@reservoir0x/reservoir-kit-ui'
+import {
+  useCollections,
+  useCollectionActivity,
+  useDynamicTokens,
+  useAttributes,
+} from '@reservoir0x/reservoir-kit-ui'
 import { paths } from '@reservoir0x/reservoir-sdk'
 import Layout from 'components/Layout'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -43,7 +53,11 @@ import { formatNumber } from 'utils/numbers'
 import WriteReview from 'components/buttons/WriteReview'
 
 type ActivityTypes = Exclude<
-  NonNullable<NonNullable<Exclude<Parameters<typeof useCollectionActivity>['0'], boolean>>['types']>,
+  NonNullable<
+    NonNullable<
+      Exclude<Parameters<typeof useCollectionActivity>['0'], boolean>
+    >['types']
+  >,
   string
 >
 
@@ -59,17 +73,19 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 905 }) && isMounted
   const smallSubtitle = useMediaQuery({ maxWidth: 1150 }) && isMounted
-  const [playingElement, setPlayingElement] = useState<HTMLAudioElement | HTMLVideoElement | null>()
+  const [playingElement, setPlayingElement] = useState<
+    HTMLAudioElement | HTMLVideoElement | null
+  >()
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const loadMoreObserver = useIntersectionObserver(loadMoreRef, {})
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const handleReviewSubmit = (rating: number, review: string) => {
-    console.log('Submitted review:', { rating, review });
+    console.log('Submitted review:', { rating, review })
 
     // Handle the submitted review data here
-  };
+  }
 
   const scrollToTop = () => {
     let top = (scrollRef.current?.offsetTop || 0) - (NAVBAR_HEIGHT + 16)
@@ -78,11 +94,11 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   let collectionQuery: Parameters<typeof useCollections>['0'] = {
     id,
-    includeTopBid: true
+    includeTopBid: true,
   }
 
   const { data: collections } = useCollections(collectionQuery, {
-    fallbackData: [ssr.collection]
+    fallbackData: [ssr.collection],
   })
 
   let collection = collections && collections[0]
@@ -93,7 +109,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     sortBy: 'floorAskPrice',
     sortDirection: 'asc',
     includeQuantity: true,
-    includeLastSale: true
+    includeLastSale: true,
   }
 
   const sortDirection = router.query['sortDirection']?.toString()
@@ -104,7 +120,11 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   // Extract all queries of attribute type
   Object.keys({ ...router.query }).map((key) => {
-    if (key.startsWith('attributes[') && key.endsWith(']') && router.query[key] !== '') {
+    if (
+      key.startsWith('attributes[') &&
+      key.endsWith(']') &&
+      router.query[key] !== ''
+    ) {
       //@ts-ignore
       tokenQuery[key] = router.query[key]
     }
@@ -118,9 +138,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     resetCache,
     isFetchingInitialData,
     isFetchingPage,
-    hasNextPage
+    hasNextPage,
   } = useDynamicTokens(tokenQuery, {
-    fallbackData: initialTokenFallbackData ? [ssr.tokens] : undefined
+    fallbackData: initialTokenFallbackData ? [ssr.tokens] : undefined,
   })
 
   const attributesData = useAttributes(id)
@@ -130,7 +150,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
       return []
     }
     return attributesData.data
-      ?.filter((attribute) => attribute.kind != 'number' && attribute.kind != 'range')
+      ?.filter(
+        (attribute) => attribute.kind != 'number' && attribute.kind != 'range'
+      )
       .sort((a, b) => a.key.localeCompare(b.key))
   }, [attributesData.data])
 
@@ -138,11 +160,16 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     setAttributeFiltersOpen(false)
   }
 
-  let creatorRoyalties = collection?.royalties?.bps ? collection?.royalties?.bps * 0.01 : 0
+  let creatorRoyalties = collection?.royalties?.bps
+    ? collection?.royalties?.bps * 0.01
+    : 0
   let chain = titleCase(router.query.chain as string)
 
   const rarityEnabledCollection = Boolean(
-    collection?.tokenCount && +collection.tokenCount >= 2 && attributes && attributes?.length >= 2
+    collection?.tokenCount &&
+      +collection.tokenCount >= 2 &&
+      attributes &&
+      attributes?.length >= 2
   )
 
   //@ts-ignore: Ignore until we regenerate the types
@@ -177,8 +204,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
             pt: '$5',
             pb: 0,
             '@sm': {
-              px: '$5'
-            }
+              px: '$5',
+            },
           }}
         >
           <Flex justify="between" css={{ mb: '$4' }}>
@@ -192,7 +219,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                     width: 64,
                     height: 64,
                     borderRadius: 8,
-                    objectFit: 'cover'
+                    objectFit: 'cover',
                   }}
                   alt="Collection Page Image"
                 />
@@ -201,23 +228,38 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                     <Text style="h5" as="h6" ellipsify>
                       {collection.name}
                     </Text>
-                    <OpenSeaVerified openseaVerificationStatus={collection?.openseaVerificationStatus} />
+                    <OpenSeaVerified
+                      openseaVerificationStatus={
+                        collection?.openseaVerificationStatus
+                      }
+                    />
                   </Flex>
 
                   {!smallSubtitle && (
                     <Flex align="end" css={{ gap: 24 }}>
-                      <CopyText text={collection.id as string} css={{ width: 'max-content' }}>
+                      <CopyText
+                        text={collection.id as string}
+                        css={{ width: 'max-content' }}
+                      >
                         <Flex css={{ gap: '$2', width: 'max-content' }}>
                           {!isSmallDevice && (
                             <Text style="body1" color="subtle">
                               Collection
                             </Text>
                           )}
-                          <Text style="body1" color={isSmallDevice ? 'subtle' : undefined} as="p">
+                          <Text
+                            style="body1"
+                            color={isSmallDevice ? 'subtle' : undefined}
+                            as="p"
+                          >
                             {truncateAddress(collection.id as string)}
                           </Text>
                           <Box css={{ color: '$gray10' }}>
-                            <FontAwesomeIcon icon={faCopy} width={16} height={16} />
+                            <FontAwesomeIcon
+                              icon={faCopy}
+                              width={16}
+                              height={16}
+                            />
                           </Box>
                         </Flex>
                       </CopyText>
@@ -231,7 +273,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         <Text style="body1" color="subtle">
                           Chain{' '}
                         </Text>
-                        <Link href={`/collection-rankings?chain=${router.query.chain}`}>
+                        <Link
+                          href={`/collection-rankings?chain=${router.query.chain}`}
+                        >
                           <Text style="body1">{chain}</Text>
                         </Link>
                       </Box>
@@ -245,7 +289,10 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         <Text style="body1" color="subtle">
                           Review Count
                         </Text>
-                        <Text style="body1"> {formatNumber(ssr.reviewsCount)}</Text>
+                        <Text style="body1">
+                          {' '}
+                          {formatNumber(ssr.reviewsCount)}
+                        </Text>
                       </Box>
                     </Flex>
                   )}
@@ -260,10 +307,13 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                 gap: 12,
                 mb: 24,
                 gridTemplateColumns: '1fr 1fr',
-                maxWidth: 550
+                maxWidth: 550,
               }}
             >
-              <CopyText text={collection.id as string} css={{ width: 'max-content' }}>
+              <CopyText
+                text={collection.id as string}
+                css={{ width: 'max-content' }}
+              >
                 <Flex css={{ width: 'max-content' }} direction="column">
                   <Text style="body1" color="subtle">
                     Collection
@@ -298,7 +348,10 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               </Flex>
             </Grid>
           )}
-          <StatHeader collection={collection} reviewsAverageRating={ssr.reviewsAverageRating} />
+          <StatHeader
+            collection={collection}
+            reviewsAverageRating={ssr.reviewsAverageRating}
+          />
           <Tabs.Root
             defaultValue="items"
             onValueChange={(value) => {
@@ -318,12 +371,15 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               <Flex
                 css={{
                   gap: attributeFiltersOpen ? '$5' : '',
-                  position: 'relative'
+                  position: 'relative',
                 }}
                 ref={scrollRef}
               >
                 {isSmallDevice ? (
-                  <MobileAttributeFilters attributes={attributes} scrollToTop={scrollToTop} />
+                  <MobileAttributeFilters
+                    attributes={attributes}
+                    scrollToTop={scrollToTop}
+                  />
                 ) : (
                   <AttributeFilters
                     attributes={attributes}
@@ -335,12 +391,15 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                 <Box
                   css={{
                     flex: 1,
-                    width: '100%'
+                    width: '100%',
                   }}
                 >
                   <Flex justify="between" css={{ marginBottom: '$4' }}>
                     {attributes && attributes.length > 0 && !isSmallDevice && (
-                      <FilterButton open={attributeFiltersOpen} setOpen={setAttributeFiltersOpen} />
+                      <FilterButton
+                        open={attributeFiltersOpen}
+                        setOpen={setAttributeFiltersOpen}
+                      />
                     )}
                     <Flex
                       css={{
@@ -352,8 +411,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         '@md': {
                           flexDirection: 'row',
                           width: 'max-content',
-                          gap: '$4'
-                        }
+                          gap: '$4',
+                        },
                       }}
                     >
                       <SortTokens />
@@ -363,8 +422,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                           width: '100%',
                           justifyContent: 'center',
                           '@sm': {
-                            maxWidth: '220px'
-                          }
+                            maxWidth: '220px',
+                          },
                         }}
                       />
                       <WriteReview
@@ -373,8 +432,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                           width: '100%',
                           justifyContent: 'center',
                           '@sm': {
-                            maxWidth: '220px'
-                          }
+                            maxWidth: '220px',
+                          },
                         }}
                       />
                     </Flex>
@@ -384,30 +443,40 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                     css={{
                       gap: '$4',
                       pb: '$6',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                      gridTemplateColumns:
+                        'repeat(auto-fill, minmax(200px, 1fr))',
                       '@md': {
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))'
-                      }
+                        gridTemplateColumns:
+                          'repeat(auto-fill, minmax(240px, 1fr))',
+                      },
                     }}
                   >
                     {isFetchingInitialData
                       ? Array(10)
                           .fill(null)
-                          .map((_, index) => <LoadingCard key={`loading-card-${index}`} />)
+                          .map((_, index) => (
+                            <LoadingCard key={`loading-card-${index}`} />
+                          ))
                       : tokens.map((token, i) => (
                           <TokenCard
                             key={i}
                             token={token}
-                            orderQuantity={token?.market?.floorAsk?.quantityRemaining}
+                            orderQuantity={
+                              token?.market?.floorAsk?.quantityRemaining
+                            }
                             address={address as Address}
                             mutate={mutate}
                             rarityEnabled={rarityEnabledCollection}
                             onMediaPlayed={(e) => {
-                              if (playingElement && playingElement !== e.nativeEvent.target) {
+                              if (
+                                playingElement &&
+                                playingElement !== e.nativeEvent.target
+                              ) {
                                 playingElement.pause()
                               }
                               const element =
-                                (e.nativeEvent.target as HTMLAudioElement) || (e.nativeEvent.target as HTMLVideoElement)
+                                (e.nativeEvent.target as HTMLAudioElement) ||
+                                (e.nativeEvent.target as HTMLVideoElement)
                               if (element) {
                                 setPlayingElement(element)
                               }
@@ -417,23 +486,29 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                     <Box
                       ref={loadMoreRef}
                       css={{
-                        display: isFetchingPage ? 'none' : 'block'
+                        display: isFetchingPage ? 'none' : 'block',
                       }}
                     >
-                      {(hasNextPage || isFetchingPage) && !isFetchingInitialData && <LoadingCard />}
+                      {(hasNextPage || isFetchingPage) &&
+                        !isFetchingInitialData && <LoadingCard />}
                     </Box>
-                    {(hasNextPage || isFetchingPage) && !isFetchingInitialData && (
-                      <>
-                        {Array(6)
-                          .fill(null)
-                          .map((_, index) => (
-                            <LoadingCard key={`loading-card-${index}`} />
-                          ))}
-                      </>
-                    )}
+                    {(hasNextPage || isFetchingPage) &&
+                      !isFetchingInitialData && (
+                        <>
+                          {Array(6)
+                            .fill(null)
+                            .map((_, index) => (
+                              <LoadingCard key={`loading-card-${index}`} />
+                            ))}
+                        </>
+                      )}
                   </Grid>
                   {tokens.length == 0 && !isFetchingPage && (
-                    <Flex direction="column" align="center" css={{ py: '$6', gap: '$4' }}>
+                    <Flex
+                      direction="column"
+                      align="center"
+                      css={{ py: '$6', gap: '$4' }}
+                    >
                       <Text css={{ color: '$gray11' }}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} size="2xl" />
                       </Text>
@@ -447,11 +522,14 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               <Flex
                 css={{
                   gap: activityFiltersOpen ? '$5' : '',
-                  position: 'relative'
+                  position: 'relative',
                 }}
               >
                 {isSmallDevice ? (
-                  <MobileActivityFilters activityTypes={activityTypes} setActivityTypes={setActivityTypes} />
+                  <MobileActivityFilters
+                    activityTypes={activityTypes}
+                    setActivityTypes={setActivityTypes}
+                  />
                 ) : (
                   <ActivityFilters
                     open={activityFiltersOpen}
@@ -464,11 +542,19 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                   css={{
                     flex: 1,
                     gap: '$4',
-                    pb: '$5'
+                    pb: '$5',
                   }}
                 >
-                  {!isSmallDevice && <FilterButton open={activityFiltersOpen} setOpen={setActivityFiltersOpen} />}
-                  <CollectionActivityTable id={id} activityTypes={activityTypes} />
+                  {!isSmallDevice && (
+                    <FilterButton
+                      open={activityFiltersOpen}
+                      setOpen={setActivityFiltersOpen}
+                    />
+                  )}
+                  <CollectionActivityTable
+                    id={id}
+                    activityTypes={activityTypes}
+                  />
                 </Box>
               </Flex>
             </TabsContent>
@@ -484,7 +570,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking'
+    fallback: 'blocking',
   }
 }
 
@@ -500,20 +586,26 @@ export const getStaticProps: GetStaticProps<{
 }> = async ({ params }) => {
   const id = params?.contract?.toString()
   const { reservoirBaseUrl, apiKey, routePrefix } =
-    supportedChains.find((chain) => params?.chain === chain.routePrefix) || DefaultChain
+    supportedChains.find((chain) => params?.chain === chain.routePrefix) ||
+    DefaultChain
   const headers: RequestInit = {
     headers: {
-      'x-api-key': apiKey || ''
+      'x-api-key': apiKey || '',
+    },
+  }
+
+  let collectionQuery: paths['/collections/v5']['get']['parameters']['query'] =
+    {
+      id,
+      includeTopBid: true,
+      normalizeRoyalties: NORMALIZE_ROYALTIES,
     }
-  }
 
-  let collectionQuery: paths['/collections/v5']['get']['parameters']['query'] = {
-    id,
-    includeTopBid: true,
-    normalizeRoyalties: NORMALIZE_ROYALTIES
-  }
-
-  const collectionsPromise = fetcher(`${reservoirBaseUrl}/collections/v5`, collectionQuery, headers)
+  const collectionsPromise = fetcher(
+    `${reservoirBaseUrl}/collections/v5`,
+    collectionQuery,
+    headers
+  )
 
   let tokensQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
     collection: id,
@@ -524,19 +616,27 @@ export const getStaticProps: GetStaticProps<{
     includeDynamicPricing: true,
     includeAttributes: true,
     includeQuantity: true,
-    includeLastSale: true
+    includeLastSale: true,
   }
 
-  const tokensPromise = fetcher(`${reservoirBaseUrl}/tokens/v6`, tokensQuery, headers)
+  const tokensPromise = fetcher(
+    `${reservoirBaseUrl}/tokens/v6`,
+    tokensQuery,
+    headers
+  )
   const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
-  const reviewsAverageRatingPromise = fetch(`${HOST_URL}/api/reviews/average?collectionId=${id}`)
-  const reviewsCountPromise = fetch(`${HOST_URL}/api/reviews/count?collectionId=${id}`)
+  const reviewsAverageRatingPromise = fetch(
+    `${HOST_URL}/api/reviews/average?collectionId=${id}`
+  )
+  const reviewsCountPromise = fetch(
+    `${HOST_URL}/api/reviews/count?collectionId=${id}`
+  )
 
   const promises = await Promise.allSettled([
     collectionsPromise,
     tokensPromise,
     reviewsAverageRatingPromise,
-    reviewsCountPromise
+    reviewsCountPromise,
   ]).catch(() => {})
   const collection: Props['ssr']['collection'] =
     promises?.[0].status === 'fulfilled' && promises[0].value.data
@@ -547,9 +647,14 @@ export const getStaticProps: GetStaticProps<{
       ? (promises[1].value.data as Props['ssr']['tokens'])
       : {}
 
-  const hasAttributes = tokens?.tokens?.some((token) => (token?.token?.attributes?.length || 0) > 0) || false
+  const hasAttributes =
+    tokens?.tokens?.some(
+      (token) => (token?.token?.attributes?.length || 0) > 0
+    ) || false
 
-  const { data: reviewsAverageRating }: ApiResponse<Props['ssr']['reviewsAverageRating']> =
+  const {
+    data: reviewsAverageRating,
+  }: ApiResponse<Props['ssr']['reviewsAverageRating']> =
     promises?.[2].status === 'fulfilled' && (await promises[2].value.json())
   const { data: reviewsCount }: ApiResponse<Props['ssr']['reviewsCount']> =
     promises?.[3].status === 'fulfilled' && (await promises[3].value.json())
@@ -563,14 +668,23 @@ export const getStaticProps: GetStaticProps<{
     return {
       redirect: {
         destination: `/collection/${routePrefix}/${id}/${tokens.tokens[0].token.tokenId}`,
-        permanent: false
-      }
+        permanent: false,
+      },
     }
   }
 
   return {
-    props: { ssr: { collection, tokens, hasAttributes, reviewsAverageRating, reviewsCount }, id },
-    revalidate: 30
+    props: {
+      ssr: {
+        collection,
+        tokens,
+        hasAttributes,
+        reviewsAverageRating,
+        reviewsCount,
+      },
+      id,
+    },
+    revalidate: 30,
   }
 }
 

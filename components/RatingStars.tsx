@@ -1,61 +1,72 @@
-import React, { useState, FC } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
-import { faStar as faStarEmpty } from '@fortawesome/free-regular-svg-icons';
-import { Text } from './primitives';
-import { IconProp, SizeProp } from '@fortawesome/fontawesome-svg-core';
+import React, { useState, FC } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons'
+import { faStar as faStarEmpty } from '@fortawesome/free-regular-svg-icons'
+import { Text } from './primitives'
+import { IconProp, SizeProp } from '@fortawesome/fontawesome-svg-core'
 
 type Props = {
-  rating: number;
-  onRatingChange?: (newRating: number) => void;
-  readOnly?: boolean;
+  rating: number
+  onRatingChange?: (newRating: number) => void
+  readOnly?: boolean
   size?: SizeProp
-};
+}
 
-const RatingStars: FC<Props> = ({ rating, onRatingChange, readOnly = false, size = "xs" }) => {
-  const [hoveredStar, setHoveredStar] = useState(-1);
-  const fullStars = Math.floor(rating);
-  const halfStar = rating - fullStars >= 0.5;
+const RatingStars: FC<Props> = ({
+  rating,
+  onRatingChange,
+  readOnly = false,
+  size = 'xs',
+}) => {
+  const [hoveredStar, setHoveredStar] = useState(-1)
+  const fullStars = Math.floor(rating)
+  const halfStar = rating - fullStars >= 0.5
 
-  const stars = Array(fullStars).fill(faStar);
+  const stars = Array(fullStars).fill(faStar)
   if (halfStar) {
-    stars.push(faStarHalfAlt);
+    stars.push(faStarHalfAlt)
   }
   while (stars.length < 5) {
-    stars.push(faStarEmpty);
+    stars.push(faStarEmpty)
   }
 
-  const getStar = (star: typeof faStar | typeof faStarHalfAlt | typeof faStarEmpty, index: number) => {
+  const getStar = (
+    star: typeof faStar | typeof faStarHalfAlt | typeof faStarEmpty,
+    index: number
+  ) => {
     if (!readOnly && hoveredStar >= index) {
-      return faStar;
+      return faStar
     }
-    return star as IconProp;
-  };
+    return star as IconProp
+  }
 
   const handleStarClick = (index: number) => {
     if (!readOnly && onRatingChange) {
-      onRatingChange(index + 1);
+      onRatingChange(index + 1)
     }
-  };
+  }
 
   const handleMouseEnter = (index: number) => {
     if (!readOnly) {
-      setHoveredStar(index);
+      setHoveredStar(index)
     }
-  };
+  }
 
   const handleMouseLeave = () => {
     if (!readOnly) {
-      setHoveredStar(-1);
+      setHoveredStar(-1)
     }
-  };
+  }
 
   return (
     <div>
       {stars.map((star, index) => (
         <Text
           key={index}
-          css={{ color: getStar(star, index) === faStar ? '$yellow8' : '$yellow1', cursor: readOnly ? 'normal' : 'pointer' }}
+          css={{
+            color: getStar(star, index) === faStar ? '$yellow8' : '$yellow1',
+            cursor: readOnly ? 'normal' : 'pointer',
+          }}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
           onClick={() => handleStarClick(index)}
@@ -64,7 +75,7 @@ const RatingStars: FC<Props> = ({ rating, onRatingChange, readOnly = false, size
         </Text>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default RatingStars;
+export default RatingStars

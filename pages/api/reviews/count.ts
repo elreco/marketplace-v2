@@ -20,7 +20,10 @@ async function getReviewsByCollection(collection_id: string): Promise<number> {
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<number>>) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ApiResponse<number>>
+) {
   const { query } = req
   const { collectionId } = query
 

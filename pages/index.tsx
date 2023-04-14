@@ -80,13 +80,18 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
         }}
       >
         {isDisconnected && (
-          <Flex direction="column" align="center" css={{ mx: 'auto', maxWidth: 728, pt: '$5', textAlign: 'center' }}>
+          <Flex
+            direction="column"
+            align="center"
+            css={{ mx: 'auto', maxWidth: 728, pt: '$5', textAlign: 'center' }}
+          >
             <Text style="h3" css={{ mb: 24 }}>
               NFT Canyon Marketplace
             </Text>
             <Text style="body1" css={{ mb: 48 }}>
-              Buy, sell, and explore NFTs while sharing insights and opinions. Elevate your NFT experience with
-              community-driven reviews and ratings.
+              Buy, sell, and explore NFTs while sharing insights and opinions.
+              Elevate your NFT experience with community-driven reviews and
+              ratings.
             </Text>
           </Flex>
         )}

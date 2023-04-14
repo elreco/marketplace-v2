@@ -1,7 +1,13 @@
 import { faStar } from '@fortawesome/free-solid-svg-icons/faStar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
-import { Text, Box, FormatCryptoCurrency, Grid, Flex } from 'components/primitives'
+import {
+  Text,
+  Box,
+  FormatCryptoCurrency,
+  Grid,
+  Flex,
+} from 'components/primitives'
 import RatingStars from 'components/RatingStars'
 import { useMounted } from 'hooks'
 import { FC, ReactNode } from 'react'
@@ -18,7 +24,7 @@ const StatBox: FC<Props> = ({ label, children }) => (
     css={{
       p: '$4',
       minWidth: 120,
-      background: '$panelBg'
+      background: '$panelBg',
     }}
   >
     <Text style="subtitle3" css={{ color: '$gray12' }} as="p">
@@ -28,7 +34,9 @@ const StatBox: FC<Props> = ({ label, children }) => (
   </Box>
 )
 
-const ReviewBox: FC<{ reviewsAverageRating: number }> = ({ reviewsAverageRating }) => {
+const ReviewBox: FC<{ reviewsAverageRating: number }> = ({
+  reviewsAverageRating,
+}) => {
   if (reviewsAverageRating) {
     return (
       <Flex align="center" css={{ gap: '$1' }}>
@@ -44,11 +52,15 @@ type StatHeaderProps = {
   reviewsAverageRating: number
 }
 
-const StatHeader: FC<StatHeaderProps> = ({ collection, reviewsAverageRating }) => {
+const StatHeader: FC<StatHeaderProps> = ({
+  collection,
+  reviewsAverageRating,
+}) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 600 }) && isMounted
   const listedPercentage =
-    ((collection?.onSaleCount ? +collection.onSaleCount : 0) / (collection?.tokenCount ? +collection.tokenCount : 0)) *
+    ((collection?.onSaleCount ? +collection.onSaleCount : 0) /
+      (collection?.tokenCount ? +collection.tokenCount : 0)) *
     100
 
   return (
@@ -60,8 +72,8 @@ const StatHeader: FC<StatHeaderProps> = ({ collection, reviewsAverageRating }) =
         gridTemplateColumns: '1fr 1fr',
         '@sm': {
           gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
-          marginRight: 'auto'
-        }
+          marginRight: 'auto',
+        },
       }}
     >
       <StatBox label="Floor">

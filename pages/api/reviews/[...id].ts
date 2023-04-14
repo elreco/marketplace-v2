@@ -13,9 +13,14 @@ function calculateAverageRating(reviews: Review[]) {
   return average
 }
 
-async function getReviewsByCollection(collection_id: string): Promise<Review[]> {
+async function getReviewsByCollection(
+  collection_id: string
+): Promise<Review[]> {
   try {
-    const { data, error } = await supabaseClient.from('reviews').select('*').eq('collection_id', collection_id)
+    const { data, error } = await supabaseClient
+      .from('reviews')
+      .select('*')
+      .eq('collection_id', collection_id)
 
     if (error) {
       throw error
@@ -28,7 +33,10 @@ async function getReviewsByCollection(collection_id: string): Promise<Review[]> 
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<Review[]>>) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ApiResponse<Review[]>>
+) {
   const { query } = req
   const { collectionId } = query
 

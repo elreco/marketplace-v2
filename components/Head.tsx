@@ -16,7 +16,7 @@ type Props = {
 export const Head: FC<Props> = ({
   ogImage = '/og-image.png',
   title = 'NFT Canyon | NFT Marketplace and community-driven reviews',
-  description = 'Buy, sell, and explore NFTs while sharing insights and opinions.'
+  description = 'Buy, sell, and explore NFTs while sharing insights and opinions.',
 }) => {
   return (
     <NextHead>

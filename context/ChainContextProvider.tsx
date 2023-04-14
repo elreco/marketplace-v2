@@ -4,7 +4,7 @@ import supportedChains, { DefaultChain } from 'utils/chains'
 const supportedChainsMap = supportedChains.reduce((map, chain) => {
   map[chain.id] = chain
   return map
-}, {} as Record<string, typeof supportedChains[0]>)
+}, {} as Record<string, (typeof supportedChains)[0]>)
 
 export const ChainContext = createContext<{
   chain: typeof DefaultChain

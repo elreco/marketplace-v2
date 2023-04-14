@@ -19,7 +19,13 @@ type SectionLinkProps = {
 }
 
 const SectionLink: FC<SectionLinkProps> = ({ name, href }) => (
-  <Anchor target="_blank" rel="noopener noreferrer" href={href} weight="medium" css={{ fontSize: 14, mt: 16 }}>
+  <Anchor
+    target="_blank"
+    rel="noopener noreferrer"
+    href={href}
+    weight="medium"
+    css={{ fontSize: 14, mt: 16 }}
+  >
     {name}
   </Anchor>
 )
@@ -27,12 +33,12 @@ const SectionLink: FC<SectionLinkProps> = ({ name, href }) => (
 const sectionLinks = [
   {
     name: 'Terms of Use',
-    href: '/terms'
+    href: '/terms',
   },
   {
     name: 'Privacy Policy',
-    href: '/privacy-policy'
-  }
+    href: '/privacy-policy',
+  },
 ]
 
 export const Footer = () => {
@@ -48,8 +54,8 @@ export const Footer = () => {
         gap: 36,
         '@bp600': {
           flexDirection: 'row',
-          gap: 0
-        }
+          gap: 0,
+        },
       }}
     >
       <Flex css={{ gap: 80, '@bp600': { gap: 136 } }}>
@@ -59,10 +65,17 @@ export const Footer = () => {
           ))}
         </Flex>
       </Flex>
-      <Flex direction="column" css={{ alignItems: 'flex-start', '@bp600': { alignItems: 'flex-end' } }}>
+      <Flex
+        direction="column"
+        css={{ alignItems: 'flex-start', '@bp600': { alignItems: 'flex-end' } }}
+      >
         <SectionTitle title="Join NFT Canyon Community" />
         <Flex css={{ gap: '$4', mt: 16 }}>
-          <a target="_blank" rel="noopener noreferrer" href="https://twitter.com/nftcanyonio">
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://twitter.com/nftcanyonio"
+          >
             <Button size="xs" color="gray3">
               <FontAwesomeIcon icon={faTwitter} width={14} height={14} />
             </Button>

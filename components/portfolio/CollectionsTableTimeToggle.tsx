@@ -1,7 +1,7 @@
 import { ToggleGroup, ToggleGroupItem, Text } from '../primitives'
 import { FC } from 'react'
 
-export type CollectionsTableSortingOption = typeof sortingOptions[number]
+export type CollectionsTableSortingOption = (typeof sortingOptions)[number]
 
 const sortingOptions = ['1day', '7day', '30day', 'allTime'] as const
 
