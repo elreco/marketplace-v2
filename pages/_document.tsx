@@ -1,10 +1,4 @@
-import Document, {
-  Html,
-  Head,
-  Main,
-  NextScript,
-  DocumentContext,
-} from 'next/document'
+import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
 import { getCssText } from '../stitches.config'
 
 class MyDocument extends Document {
@@ -17,10 +11,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <style
-            id="stitches"
-            dangerouslySetInnerHTML={{ __html: getCssText() }}
-          />
+          <style id="stitches" dangerouslySetInnerHTML={{ __html: getCssText() }} />
         </Head>
 
         <meta charSet="utf-8" />
@@ -30,29 +21,12 @@ class MyDocument extends Document {
         {/* Meta tags */}
         <meta name="keywords" content="nft, ethereum, protocol" />
         <meta name="keywords" content="NFT, API, Protocol" />
-
-        {/* Favicon */}
-        <link
-          rel="shortcut icon"
-          type="image/svg"
-          href="https://marketplace.reservoir.tools/reservoir.svg"
-        />
-
-        {/* Reservoir meta tags */}
-        <meta property="reservoir:title" content="Reservoir Market" />
-        <meta property="reservoir:icon" content="/reservoir-source-icon.png" />
-        <meta
-          property="reservoir:token-url-mainnet"
-          content="/collection/ethereum/${contract}/${tokenId}"
-        />
-        <meta
-          property="reservoir:token-url-goerli"
-          content="/collection/goerli/${contract}/${tokenId}"
-        />
-        <meta
-          property="reservoir:token-url-polygon"
-          content="/collection/polygon/${contract}/${tokenId}"
-        />
+        {/* NFT Canyon meta tags */}
+        <meta property="reservoir:title" content="NFT Canyon" />
+        <meta property="reservoir:icon" content="/nftcanyon-source-icon.png" />
+        <meta property="reservoir:token-url-mainnet" content="/collection/ethereum/${contract}/${tokenId}" />
+        <meta property="reservoir:token-url-goerli" content="/collection/goerli/${contract}/${tokenId}" />
+        <meta property="reservoir:token-url-polygon" content="/collection/polygon/${contract}/${tokenId}" />
         <body>
           <Main />
           <NextScript />
