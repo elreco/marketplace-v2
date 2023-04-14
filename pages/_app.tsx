@@ -1,6 +1,4 @@
-import AnalyticsProvider, {
-  initializeAnalytics,
-} from 'components/AnalyticsProvider'
+import AnalyticsProvider, { initializeAnalytics } from 'components/AnalyticsProvider'
 initializeAnalytics()
 
 import { Inter } from '@next/font/google'
@@ -13,7 +11,7 @@ import {
   RainbowKitProvider,
   getDefaultWallets,
   darkTheme as rainbowDarkTheme,
-  lightTheme as rainbowLightTheme,
+  lightTheme as rainbowLightTheme
 } from '@rainbow-me/rainbowkit'
 import { WagmiConfig, createClient, configureChains } from 'wagmi'
 import * as Tooltip from '@radix-ui/react-tooltip'
@@ -25,7 +23,7 @@ import {
   darkTheme as reservoirDarkTheme,
   lightTheme as reservoirLightTheme,
   ReservoirKitTheme,
-  CartProvider,
+  CartProvider
 } from '@reservoir0x/reservoir-kit-ui'
 import { FC, useEffect, useState } from 'react'
 import { HotkeysProvider } from 'react-hotkeys-hook'
@@ -36,35 +34,37 @@ import ChainContextProvider from 'context/ChainContextProvider'
 
 //CONFIGURABLE: Use nextjs to load your own custom font: https://nextjs.org/docs/basic-features/font-optimization
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin']
 })
 
-export const NORMALIZE_ROYALTIES = process.env.NEXT_PUBLIC_NORMALIZE_ROYALTIES
+const normalizeRoyalties = process.env.NEXT_PUBLIC_NORMALIZE_ROYALTIES
   ? process.env.NEXT_PUBLIC_NORMALIZE_ROYALTIES === 'true'
-  : false
+  : false // Set a default value here
+
+export const NORMALIZE_ROYALTIES = normalizeRoyalties
 
 const { chains, provider } = configureChains(supportedChains, [
   alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID || '' }),
-  publicProvider(),
+  publicProvider()
 ])
 
 const { connectors } = getDefaultWallets({
-  appName: 'Reservoir Marketplace',
-  chains,
+  appName: 'NFT Canyon',
+  chains
 })
 
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
-  provider,
+  provider
 })
 
 //CONFIGURABLE: Here you can override any of the theme tokens provided by RK: https://docs.reservoir.tools/docs/reservoir-kit-theming-and-customization
 const reservoirKitThemeOverrides = {
   headlineFont: inter.style.fontFamily,
   font: inter.style.fontFamily,
-  primaryColor: '#6E56CB',
-  primaryHoverColor: '#644fc1',
+  primaryColor: '#5142fc',
+  primaryHoverColor: '#644fc1'
 }
 
 function AppWrapper(props: AppProps & { baseUrl: string }) {
@@ -74,7 +74,7 @@ function AppWrapper(props: AppProps & { baseUrl: string }) {
       defaultTheme="dark"
       value={{
         dark: darkTheme.className,
-        light: 'light',
+        light: 'light'
       }}
     >
       <WagmiConfig client={wagmiClient}>
@@ -88,23 +88,15 @@ function AppWrapper(props: AppProps & { baseUrl: string }) {
   )
 }
 
-function MyApp({
-  Component,
-  pageProps,
-  baseUrl,
-}: AppProps & { baseUrl: string }) {
+function MyApp({ Component, pageProps, baseUrl }: AppProps & { baseUrl: string }) {
   globalReset()
 
   const { theme } = useTheme()
   const marketplaceChain = useMarketplaceChain()
-  const [reservoirKitTheme, setReservoirKitTheme] = useState<
-    ReservoirKitTheme | undefined
-  >()
+  const [reservoirKitTheme, setReservoirKitTheme] = useState<ReservoirKitTheme | undefined>()
 
   const [rainbowKitTheme, setRainbowKitTheme] = useState<
-    | ReturnType<typeof rainbowDarkTheme>
-    | ReturnType<typeof rainbowLightTheme>
-    | undefined
+    ReturnType<typeof rainbowDarkTheme> | ReturnType<typeof rainbowLightTheme> | undefined
   >()
 
   useEffect(() => {
@@ -112,14 +104,14 @@ function MyApp({
       setReservoirKitTheme(reservoirDarkTheme(reservoirKitThemeOverrides))
       setRainbowKitTheme(
         rainbowDarkTheme({
-          borderRadius: 'small',
+          borderRadius: 'small'
         })
       )
     } else {
       setReservoirKitTheme(reservoirLightTheme(reservoirKitThemeOverrides))
       setRainbowKitTheme(
         rainbowLightTheme({
-          borderRadius: 'small',
+          borderRadius: 'small'
         })
       )
     }
@@ -143,7 +135,7 @@ function MyApp({
         defaultTheme="dark"
         value={{
           dark: darkTheme.className,
-          light: 'light',
+          light: 'light'
         }}
       >
         <ReservoirKitProvider
@@ -154,25 +146,20 @@ function MyApp({
               return {
                 id,
                 baseApiUrl: `${baseUrl}${proxyApi}`,
-                default: marketplaceChain.id === id,
+                default: marketplaceChain.id === id
               }
             }),
             source: source,
             normalizeRoyalties: NORMALIZE_ROYALTIES,
-            //CONFIGURABLE: Set your marketplace fee and recipient, (fee is in BPS)
-            // Note that this impacts orders created on your marketplace (offers/listings)
-            // marketplaceFee: 250,
-            // marketplaceFeeRecipient: "0xabc"
+            disablePoweredByReservoir: true,
+            marketplaceFee: 100,
+            marketplaceFeeRecipient: '0xe0C5123B0FD1A7D94bB8D84bBAF1026B699C6dC6'
           }}
           theme={reservoirKitTheme}
         >
           <CartProvider>
             <Tooltip.Provider>
-              <RainbowKitProvider
-                chains={chains}
-                theme={rainbowKitTheme}
-                modalSize="compact"
-              >
+              <RainbowKitProvider chains={chains} theme={rainbowKitTheme} modalSize="compact">
                 <ToastContextProvider>
                   <FunctionalComponent {...pageProps} />
                 </ToastContextProvider>

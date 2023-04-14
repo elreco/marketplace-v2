@@ -51,7 +51,7 @@ const Navbar = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
+        right: 0
       }}
       align="center"
       justify="between"
@@ -60,12 +60,7 @@ const Navbar = () => {
         <Flex align="center">
           <Link href="/">
             <Box css={{ width: 34, cursor: 'pointer' }}>
-              <Image
-                src="/reservoirLogo.svg"
-                width={34}
-                height={39}
-                alt="Reservoir"
-              />
+              <Image src="/logo-alone.png" width={34} height={39} alt="NFT Canyon" />
             </Box>
           </Link>
         </Flex>
@@ -90,7 +85,7 @@ const Navbar = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
+        right: 0
       }}
       align="center"
       justify="between"
@@ -100,19 +95,9 @@ const Navbar = () => {
           <Link href="/">
             <Box css={{ width: 112, cursor: 'pointer' }}>
               {theme == 'dark' ? (
-                <Image
-                  src="/reservoirMarketLogo.svg"
-                  width={112}
-                  height={36}
-                  alt="Reservoir"
-                />
+                <Image src="/logo-dark.png" width={112} height={36} alt="NFT Canyon" />
               ) : (
-                <Image
-                  src="/reservoirMarketLogoLight.svg"
-                  width={112}
-                  height={36}
-                  alt="Reservoir"
-                />
+                <Image src="/logo.png" width={112} height={36} alt="NFT Canyon" />
               )}
             </Box>
           </Link>
@@ -126,15 +111,10 @@ const Navbar = () => {
           </Box>
           <Flex align="center" css={{ gap: '$5', mr: '$5' }}>
             <Link href="/collection-rankings">
-              <NavItem active={router.pathname == '/collection-rankings'}>
-                Collections
-              </NavItem>
+              <NavItem active={router.pathname == '/collection-rankings'}>Collections</NavItem>
             </Link>
             <Link href="/portfolio">
               <NavItem active={router.pathname == '/portfolio'}>Sell</NavItem>
-            </Link>
-            <Link href="https://docs.reservoir.tools/docs">
-              <NavItem active={false}>Docs</NavItem>
             </Link>
           </Flex>
         </Flex>
