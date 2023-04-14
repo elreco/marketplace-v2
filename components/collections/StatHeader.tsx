@@ -1,5 +1,8 @@
+import { faStar } from '@fortawesome/free-solid-svg-icons/faStar'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
-import { Text, Box, FormatCryptoCurrency, Grid } from 'components/primitives'
+import { Text, Box, FormatCryptoCurrency, Grid, Flex } from 'components/primitives'
+import RatingStars from 'components/RatingStars'
 import { useMounted } from 'hooks'
 import { FC, ReactNode } from 'react'
 import { useMediaQuery } from 'react-responsive'
@@ -15,7 +18,7 @@ const StatBox: FC<Props> = ({ label, children }) => (
     css={{
       p: '$4',
       minWidth: 120,
-      background: '$panelBg',
+      background: '$panelBg'
     }}
   >
     <Text style="subtitle3" css={{ color: '$gray12' }} as="p">
@@ -25,16 +28,27 @@ const StatBox: FC<Props> = ({ label, children }) => (
   </Box>
 )
 
-type StatHeaderProps = {
-  collection: NonNullable<ReturnType<typeof useCollections>['data']>['0']
+const ReviewBox: FC<{ reviewsAverageRating: number }> = ({ reviewsAverageRating }) => {
+  if (reviewsAverageRating) {
+    return (
+      <Flex align="center" css={{ gap: '$1' }}>
+        <RatingStars rating={reviewsAverageRating} readOnly></RatingStars>
+      </Flex>
+    )
+  }
+  return <Text style="h6">-</Text>
 }
 
-const StatHeader: FC<StatHeaderProps> = ({ collection }) => {
+type StatHeaderProps = {
+  collection: NonNullable<ReturnType<typeof useCollections>['data']>['0']
+  reviewsAverageRating: number
+}
+
+const StatHeader: FC<StatHeaderProps> = ({ collection, reviewsAverageRating }) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 600 }) && isMounted
   const listedPercentage =
-    ((collection?.onSaleCount ? +collection.onSaleCount : 0) /
-      (collection?.tokenCount ? +collection.tokenCount : 0)) *
+    ((collection?.onSaleCount ? +collection.onSaleCount : 0) / (collection?.tokenCount ? +collection.tokenCount : 0)) *
     100
 
   return (
@@ -45,9 +59,9 @@ const StatHeader: FC<StatHeaderProps> = ({ collection }) => {
         gap: 1,
         gridTemplateColumns: '1fr 1fr',
         '@sm': {
-          gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
-          marginRight: 'auto',
-        },
+          gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
+          marginRight: 'auto'
+        }
       }}
     >
       <StatBox label="Floor">
@@ -89,6 +103,10 @@ const StatHeader: FC<StatHeaderProps> = ({ collection }) => {
 
       <StatBox label="Count">
         <Text style="h6">{formatNumber(collection?.tokenCount)}</Text>
+      </StatBox>
+
+      <StatBox label="Rating Avg">
+        <ReviewBox reviewsAverageRating={reviewsAverageRating} />
       </StatBox>
     </Grid>
   )
