@@ -2,7 +2,7 @@ import React, { useState, FC } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons'
 import { faStar as faStarEmpty } from '@fortawesome/free-regular-svg-icons'
-import { Text } from './primitives'
+import { Flex, Text } from './primitives'
 import { IconProp, SizeProp } from '@fortawesome/fontawesome-svg-core'
 
 type Props = {
@@ -59,12 +59,12 @@ const RatingStars: FC<Props> = ({
   }
 
   return (
-    <div>
+    <Flex align="center">
       {stars.map((star, index) => (
         <Text
           key={index}
           css={{
-            color: getStar(star, index) === faStar ? '$yellow8' : '$yellow1',
+            color: '$yellow8',
             cursor: readOnly ? 'normal' : 'pointer',
           }}
           onMouseEnter={() => handleMouseEnter(index)}
@@ -73,8 +73,9 @@ const RatingStars: FC<Props> = ({
         >
           <FontAwesomeIcon icon={getStar(star, index)} size={size} />
         </Text>
-      ))}
-    </div>
+      ))} 
+      <Text css={{marginLeft: '$2'}} style="h6">{rating}</Text>
+    </Flex>
   )
 }
 

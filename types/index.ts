@@ -4,6 +4,8 @@ export interface Review {
   user_id: `0x${string}`
   rating: number
   comment: string
+  created_at?: string;
+  updated_at?: string;
 }
 
 export type ApiResponse<T> = {

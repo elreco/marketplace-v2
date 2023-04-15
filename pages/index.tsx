@@ -174,6 +174,8 @@ export const getStaticProps: GetStaticProps<{
     } else if (chain.community) {
       query.community = chain.community
     }
+
+    
     promises.push(
       fetcher(`${chain.reservoirBaseUrl}/collections/v5`, query, {
         headers: {
@@ -184,10 +186,16 @@ export const getStaticProps: GetStaticProps<{
   })
   const responses = await Promise.allSettled(promises)
   const collections: ChainCollections = {}
+  const reviewsPromises = []
+  const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
   responses.forEach((response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
     }
+    collections[supportedChains[i].id].collections
+    const reviewsPromise = fetch(
+      `${HOST_URL}/api/reviews/average?collection_id=${collectionId}`
+    )
   })
 
   return {

@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Input, Text } from 'components/primitives'
-import { ComponentProps, FC, useState } from 'react'
+import { ComponentProps, FC, useEffect, useState } from 'react'
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { CSS } from '@stitches/react'
 import { useMarketplaceChain } from 'hooks'
@@ -49,6 +49,11 @@ const WriteReview: FC<Props> = ({
     }
 
     setOpen(false)
+    setTimeout(() => {
+      setRating(0)
+      setComment('')
+    }, 200)
+    
   }
 
   if (isDisconnected || isInTheWrongNetwork) {
@@ -111,7 +116,7 @@ const WriteReview: FC<Props> = ({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               type="text"
-              placeholder="Type your review..."
+              placeholder="Type your review (Optional)"
             />
           </Box>
         </Flex>

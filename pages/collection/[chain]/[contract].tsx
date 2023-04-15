@@ -71,6 +71,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const { address } = useAccount()
   const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(false)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
+  const [reviewsAverageRating, setReviewsAverageRating] = useState(ssr.reviewsAverageRating)
+  const [reviewsCount, setReviewsCount] = useState(ssr.reviewsCount)
   const [isReviewLoading, setReviewLoading] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
   const [initialTokenFallbackData, setInitialTokenFallbackData] = useState(true)
@@ -87,37 +89,79 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const handleReviewSubmit = async (rating: number, comment: string) => {
-    setReviewLoading(true)
+    setReviewLoading(true);
+  
     try {
       if (!address || !id) {
-        return
+        return;
       }
+  
       const payload: Review = {
-         collection_id: id, 
-         rating, 
-         comment, 
-         user_id: address
-      }
-      await fetch(
-        `${HOST_URL}/api/reviews`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload)
-        })
+        collection_id: id,
+        rating,
+        comment,
+        user_id: address,
+      };
+  
+      const response = await fetch(`${HOST_URL}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.status === 409) {
+        addToast?.({
+          title: 'You already reviewed this collection',
+          description: 'We cannot add your review.',
+        });
+      } else if (!response.ok) {
+        addToast?.({
+          title: 'Review not added',
+          description: 'We cannot add your review.',
+        });
+      } else 
+      {
+        await updateReviewsData();
+  
         addToast?.({
           title: 'Your review has been added',
           description: 'Thanks for submitting your review.',
-        })
-    } catch {
-
+        });
+      }
+    } catch (error) {
+      console.error("Can't add review:", error);
+    } finally {
+      setReviewLoading(false);
     }
+  };
 
-    setReviewLoading(false)
-    
-  }
+  const updateReviewsData = async () => {
+    try {
+      const [reviewsAverageRatingData, reviewsCountData] = await Promise.all([
+        fetch(`${HOST_URL}/api/reviews/average?collection_id=${id}`),
+        fetch(`${HOST_URL}/api/reviews/count?collection_id=${id}`),
+      ]);
+  
+      if (!reviewsAverageRatingData.ok || !reviewsCountData.ok) {
+        throw new Error(`Failed to fetch reviews data`);
+      }
+  
+      const [reviewsAverageRatingJson, reviewsCountJson]: [
+        ApiResponse<number>,
+        ApiResponse<number>
+      ] = await Promise.all([
+        reviewsAverageRatingData.json(),
+        reviewsCountData.json(),
+      ]);
+  
+      setReviewsAverageRating(reviewsAverageRatingJson.data);
+      setReviewsCount(reviewsCountJson.data);
+    } catch (error) {
+      console.error("Can't update review data:", error);
+    }
+  };
 
   const scrollToTop = () => {
     let top = (scrollRef.current?.offsetTop || 0) - (NAVBAR_HEIGHT + 16)
@@ -317,15 +361,6 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         </Text>
                         <Text style="body1"> {creatorRoyalties}%</Text>
                       </Box>
-                      <Box>
-                        <Text style="body1" color="subtle">
-                          Review Count
-                        </Text>
-                        <Text style="body1">
-                          {' '}
-                          {formatNumber(ssr.reviewsCount)}
-                        </Text>
-                      </Box>
                     </Flex>
                   )}
                 </Box>
@@ -382,7 +417,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
           )}
           <StatHeader
             collection={collection}
-            reviewsAverageRating={ssr.reviewsAverageRating}
+            reviewsAverageRating={reviewsAverageRating}
+            reviewsCount={reviewsCount}
           />
           <Tabs.Root
             defaultValue="items"
@@ -397,6 +433,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
             <TabsList>
               <TabsTrigger value="items">Items</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
             </TabsList>
 
             <TabsContent value="items">
@@ -437,7 +474,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       css={{
                         ml: 'auto',
                         width: '100%',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         whiteSpace: 'nowrap',
                         gap: '$3',
                         '@md': {
@@ -450,17 +487,6 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       <SortTokens />
                       <CollectionOffer
                         collection={collection}
-                        buttonCss={{
-                          width: '100%',
-                          justifyContent: 'center',
-                          '@sm': {
-                            maxWidth: '220px',
-                          },
-                        }}
-                      />
-                      <WriteReview
-                        isLoading={isReviewLoading}
-                        onReviewSubmit={handleReviewSubmit}
                         buttonCss={{
                           width: '100%',
                           justifyContent: 'center',
@@ -591,6 +617,148 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                 </Box>
               </Flex>
             </TabsContent>
+            <TabsContent value="reviews">
+            <Flex
+                css={{
+                  gap: attributeFiltersOpen ? '$5' : '',
+                  position: 'relative',
+                }}
+                ref={scrollRef}
+              >
+                {isSmallDevice ? (
+                  <MobileAttributeFilters
+                    attributes={attributes}
+                    scrollToTop={scrollToTop}
+                  />
+                ) : (
+                  <AttributeFilters
+                    attributes={attributes}
+                    open={attributeFiltersOpen}
+                    setOpen={setAttributeFiltersOpen}
+                    scrollToTop={scrollToTop}
+                  />
+                )}
+                <Box
+                  css={{
+                    flex: 1,
+                    width: '100%',
+                  }}
+                >
+                  <Flex justify="between" css={{ marginBottom: '$4' }}>
+                    {attributes && attributes.length > 0 && !isSmallDevice && (
+                      <FilterButton
+                        open={attributeFiltersOpen}
+                        setOpen={setAttributeFiltersOpen}
+                      />
+                    )}
+                    <Flex
+                      css={{
+                        ml: 'auto',
+                        width: '100%',
+                        flexDirection: 'row',
+                        whiteSpace: 'nowrap',
+                        gap: '$3',
+                        '@md': {
+                          flexDirection: 'row',
+                          width: 'max-content',
+                          gap: '$4',
+                        },
+                      }}
+                    >
+                      <SortTokens />
+                      <WriteReview
+                        isLoading={isReviewLoading}
+                        onReviewSubmit={handleReviewSubmit}
+                        buttonCss={{
+                          width: '100%',
+                          justifyContent: 'center',
+                          '@sm': {
+                            maxWidth: '220px',
+                          },
+                        }}
+                      />
+                    </Flex>
+                  </Flex>
+                  {!isSmallDevice && <SelectedAttributes />}
+                  <Grid
+                    css={{
+                      gap: '$4',
+                      pb: '$6',
+                      gridTemplateColumns:
+                        'repeat(auto-fill, minmax(200px, 1fr))',
+                      '@md': {
+                        gridTemplateColumns:
+                          'repeat(auto-fill, minmax(240px, 1fr))',
+                      },
+                    }}
+                  >
+                    {isFetchingInitialData
+                      ? Array(10)
+                          .fill(null)
+                          .map((_, index) => (
+                            <LoadingCard key={`loading-card-${index}`} />
+                          ))
+                      : tokens.map((token, i) => (
+                          <TokenCard
+                            key={i}
+                            token={token}
+                            orderQuantity={
+                              token?.market?.floorAsk?.quantityRemaining
+                            }
+                            address={address as Address}
+                            mutate={mutate}
+                            rarityEnabled={rarityEnabledCollection}
+                            onMediaPlayed={(e) => {
+                              if (
+                                playingElement &&
+                                playingElement !== e.nativeEvent.target
+                              ) {
+                                playingElement.pause()
+                              }
+                              const element =
+                                (e.nativeEvent.target as HTMLAudioElement) ||
+                                (e.nativeEvent.target as HTMLVideoElement)
+                              if (element) {
+                                setPlayingElement(element)
+                              }
+                            }}
+                          />
+                        ))}
+                    <Box
+                      ref={loadMoreRef}
+                      css={{
+                        display: isFetchingPage ? 'none' : 'block',
+                      }}
+                    >
+                      {(hasNextPage || isFetchingPage) &&
+                        !isFetchingInitialData && <LoadingCard />}
+                    </Box>
+                    {(hasNextPage || isFetchingPage) &&
+                      !isFetchingInitialData && (
+                        <>
+                          {Array(6)
+                            .fill(null)
+                            .map((_, index) => (
+                              <LoadingCard key={`loading-card-${index}`} />
+                            ))}
+                        </>
+                      )}
+                  </Grid>
+                  {tokens.length == 0 && !isFetchingPage && (
+                    <Flex
+                      direction="column"
+                      align="center"
+                      css={{ py: '$6', gap: '$4' }}
+                    >
+                      <Text css={{ color: '$gray11' }}>
+                        <FontAwesomeIcon icon={faMagnifyingGlass} size="2xl" />
+                      </Text>
+                      <Text css={{ color: '$gray11' }}>No items found</Text>
+                    </Flex>
+                  )}
+                </Box>
+              </Flex>
+            </TabsContent>
           </Tabs.Root>
         </Flex>
       ) : (
@@ -659,10 +827,10 @@ export const getStaticProps: GetStaticProps<{
   )
   
   const reviewsAverageRatingPromise = fetch(
-    `${HOST_URL}/api/reviews/average?collectionId=${id}`
+    `${HOST_URL}/api/reviews/average?collection_id=${id}`
   )
   const reviewsCountPromise = fetch(
-    `${HOST_URL}/api/reviews/count?collectionId=${id}`
+    `${HOST_URL}/api/reviews/count?collection_id=${id}`
   )
 
   const promises = await Promise.allSettled([

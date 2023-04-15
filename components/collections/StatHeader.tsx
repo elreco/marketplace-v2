@@ -1,5 +1,3 @@
-import { faStar } from '@fortawesome/free-solid-svg-icons/faStar'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
 import {
   Text,
@@ -50,11 +48,13 @@ const ReviewBox: FC<{ reviewsAverageRating: number }> = ({
 type StatHeaderProps = {
   collection: NonNullable<ReturnType<typeof useCollections>['data']>['0']
   reviewsAverageRating: number
+  reviewsCount: number
 }
 
 const StatHeader: FC<StatHeaderProps> = ({
   collection,
   reviewsAverageRating,
+  reviewsCount
 }) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 600 }) && isMounted
@@ -63,6 +63,11 @@ const StatHeader: FC<StatHeaderProps> = ({
       (collection?.tokenCount ? +collection.tokenCount : 0)) *
     100
 
+  const ratingLabel = () => {
+    const formatedReviewsCount = formatNumber(reviewsCount)
+    return `Rating (${formatedReviewsCount})`
+  }
+
   return (
     <Grid
       css={{
@@ -70,7 +75,7 @@ const StatHeader: FC<StatHeaderProps> = ({
         overflow: 'hidden',
         gap: 1,
         gridTemplateColumns: '1fr 1fr',
-        '@sm': {
+        '@md': {
           gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
           marginRight: 'auto',
         },
@@ -98,11 +103,11 @@ const StatHeader: FC<StatHeaderProps> = ({
         />
       </StatBox>
 
-      {!isSmallDevice && (
+      
         <StatBox label="Listed">
           <Text style="h6">{formatNumber(listedPercentage)}%</Text>
         </StatBox>
-      )}
+      
 
       <StatBox label="Total Volume">
         <FormatCryptoCurrency
@@ -117,7 +122,7 @@ const StatHeader: FC<StatHeaderProps> = ({
         <Text style="h6">{formatNumber(collection?.tokenCount)}</Text>
       </StatBox>
 
-      <StatBox label="Rating Avg">
+      <StatBox label={ratingLabel()}>
         <ReviewBox reviewsAverageRating={reviewsAverageRating} />
       </StatBox>
     </Grid>

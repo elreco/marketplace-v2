@@ -38,10 +38,10 @@ export default async function handler(
   res: NextApiResponse<ApiResponse<number>>
 ) {
   const { query } = req
-  const { collectionId } = query
+  const { collection_id } = query
 
-  if (collectionId && typeof collectionId === 'string') {
-    const data = await getReviewsByCollection(collectionId)
+  if (collection_id && typeof collection_id === 'string') {
+    const data = await getReviewsByCollection(collection_id)
     const averageRating = calculateAverageRating(data)
     const formattedRating = parseFloat(averageRating.toFixed(2))
     res.status(200).json({ data: formattedRating })

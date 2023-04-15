@@ -25,7 +25,7 @@ type Props = {
   volumeKey: '1day' | '7day' | '30day' | 'allTime'
 }
 
-const desktopTemplateColumns = '1.5fr 1.7fr repeat(3, 0.6fr)'
+const desktopTemplateColumns = '1.5fr 1.7fr repeat(4, 0.6fr)'
 
 export const CollectionRankingsTable: FC<Props> = ({
   collections,
@@ -296,12 +296,20 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
             address={collection?.topBid?.price?.currency?.contract}
           />
         </TableCell>
+        <TableCell>
+          <FormatCryptoCurrency
+            amount={collection?.topBid?.price?.amount?.decimal}
+            textStyle="subtitle2"
+            logoHeight={14}
+            address={collection?.topBid?.price?.currency?.contract}
+          />
+        </TableCell>
       </TableRow>
     )
   }
 }
 
-const headings = ['Collection', '', 'Volume', 'Floor Price', 'Top Offer']
+const headings = ['Collection', '', 'Volume', 'Floor Price', 'Top Offer', 'Rating']
 
 const TableHeading = () => (
   <HeaderRow
