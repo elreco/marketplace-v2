@@ -19,6 +19,7 @@ import CollectionsTimeDropdown, {
 import { Head } from 'components/Head'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
 import { ChainContext } from 'context/ChainContextProvider'
+import { ApiResponse, Review } from 'types'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -49,7 +50,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
     fallbackData: [ssr.collections[marketplaceChain.id]],
   })
 
-  let collections = data || []
+  let collections: ExtendedSchema['collections'] = data || []
 
   let volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -66,6 +67,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       volumeKey = '30day'
       break
   }
+  console.log(collections[0].reviews)
 
   return (
     <Layout>
@@ -149,9 +151,18 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   )
 }
 
+
+
 type CollectionSchema =
   paths['/collections/v5']['get']['responses']['200']['schema']
-type ChainCollections = Record<string, CollectionSchema>
+
+type ExtendedCollectionItem = NonNullable<CollectionSchema['collections']>[number] & { reviews?: Review[]; }
+
+type ExtendedSchema = Omit<CollectionSchema, 'collections'> & {
+  collections?: ExtendedCollectionItem[];
+};
+
+type ChainCollections = Record<string, ExtendedSchema>
 
 export const getStaticProps: GetStaticProps<{
   ssr: {
@@ -175,7 +186,7 @@ export const getStaticProps: GetStaticProps<{
       query.community = chain.community
     }
 
-    
+
     promises.push(
       fetcher(`${chain.reservoirBaseUrl}/collections/v5`, query, {
         headers: {
@@ -186,16 +197,26 @@ export const getStaticProps: GetStaticProps<{
   })
   const responses = await Promise.allSettled(promises)
   const collections: ChainCollections = {}
-  const reviewsPromises = []
   const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
   responses.forEach((response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
+      collections[supportedChains[i].id].collections?.forEach(async (collection, index) => {
+        if (collection?.id) {
+          // const reviewPromise = await fetch(
+          //   `${HOST_URL}/api/reviews/average?collection_id=${collection.id}`
+          // )
+          // const data: ApiResponse<Review[]> = await reviewPromise.json()
+          collection.reviews = [{
+            id: "dsg",
+            collection_id: collection.id,
+            user_id: '0xdgdgdg',
+            rating: 2,
+            comment: 'string'
+          }]
+        }
+      })
     }
-    collections[supportedChains[i].id].collections
-    const reviewsPromise = fetch(
-      `${HOST_URL}/api/reviews/average?collection_id=${collectionId}`
-    )
   })
 
   return {
