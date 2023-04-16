@@ -9,14 +9,16 @@ type Props = {
   rating: number
   onRatingChange?: (newRating: number) => void
   readOnly?: boolean
-  size?: SizeProp
+  starSize?: SizeProp
+  isRatingTextSmall?: boolean
 }
 
 const RatingStars: FC<Props> = ({
   rating,
   onRatingChange,
   readOnly = false,
-  size = 'xs',
+  starSize = 'xs',
+  isRatingTextSmall = false
 }) => {
   const [hoveredStar, setHoveredStar] = useState(-1)
   const fullStars = Math.floor(rating)
@@ -71,10 +73,10 @@ const RatingStars: FC<Props> = ({
           onMouseLeave={handleMouseLeave}
           onClick={() => handleStarClick(index)}
         >
-          <FontAwesomeIcon icon={getStar(star, index)} size={size} />
+          <FontAwesomeIcon icon={getStar(star, index)} size={starSize} />
         </Text>
       ))} 
-      <Text css={{marginLeft: '$2'}} style="h6">{rating}</Text>
+      {readOnly && <Text css={{marginLeft: '$2'}} style={isRatingTextSmall ? 'subtitle2' : 'h6'}>{rating}</Text>}
     </Flex>
   )
 }

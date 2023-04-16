@@ -14,13 +14,15 @@ import {
 } from 'components/primitives'
 import Img from 'components/primitives/Img'
 import { PercentChange } from 'components/primitives/PercentChange'
+import RatingStars from 'components/RatingStars'
 import { useMarketplaceChain } from 'hooks'
 import Link from 'next/link'
-import { ComponentPropsWithoutRef, FC, useState } from 'react'
+import { ComponentPropsWithoutRef, FC } from 'react'
 import { useMediaQuery } from 'react-responsive'
+import { ExtendedCollectionItem } from 'types'
 
 type Props = {
-  collections: ReturnType<typeof useCollections>['data']
+  collections: ExtendedCollectionItem[]
   loading?: boolean
   volumeKey: '1day' | '7day' | '30day' | 'allTime'
 }
@@ -83,7 +85,7 @@ export const CollectionRankingsTable: FC<Props> = ({
 }
 
 type RankingsTableRowProps = {
-  collection: ReturnType<typeof useCollections>['data'][0]
+  collection: ExtendedCollectionItem
   rank: number
   volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -297,12 +299,7 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
           />
         </TableCell>
         <TableCell>
-          <FormatCryptoCurrency
-            amount={collection?.topBid?.price?.amount?.decimal}
-            textStyle="subtitle2"
-            logoHeight={14}
-            address={collection?.topBid?.price?.currency?.contract}
-          />
+          {collection?.reviewsAverageRating && collection?.reviewsAverageRating > 0 ? <RatingStars rating={collection?.reviewsAverageRating} readOnly isRatingTextSmall /> : '-'}
         </TableCell>
       </TableRow>
     )

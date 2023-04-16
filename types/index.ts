@@ -1,3 +1,5 @@
+import { paths } from '@reservoir0x/reservoir-sdk'
+
 export interface Review {
   id?: string
   collection_id: string
@@ -24,3 +26,13 @@ export interface SupabaseDatabase {
     }
   }
 }
+
+type CollectionSchema = paths['/collections/v5']['get']['responses']['200']['schema']
+
+export type ExtendedCollectionItem = NonNullable<CollectionSchema['collections']>[number] & { reviewsAverageRating?: number; reviewsCount?: number; }
+
+export type ExtendedSchema = Omit<CollectionSchema, 'collections'> & {
+  collections?: ExtendedCollectionItem[];
+};
+
+export type ChainCollections = Record<string, ExtendedSchema>

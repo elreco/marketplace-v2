@@ -65,7 +65,7 @@ const StatHeader: FC<StatHeaderProps> = ({
 
   const ratingLabel = () => {
     const formatedReviewsCount = formatNumber(reviewsCount)
-    return `Rating (${formatedReviewsCount})`
+    return formatedReviewsCount ? `Rating (${formatedReviewsCount})` : 'Rating'
   }
 
   return (

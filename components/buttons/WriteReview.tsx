@@ -106,7 +106,7 @@ const WriteReview: FC<Props> = ({
         >
           <Box style={{ marginBottom: '20px' }}>
             <RatingStars
-              size="lg"
+              starSize="lg"
               rating={rating}
               onRatingChange={handleRatingChange}
             />
