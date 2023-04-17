@@ -39,7 +39,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   const isSSR = typeof window === 'undefined'
   const isMounted = useMounted()
   const compactToggleNames = useMediaQuery({ query: '(max-width: 800px)' })
-  
+  const [collections, setCollections] = useState<ExtendedSchema['collections']>([]);
   const [sortByTime, setSortByTime] =
     useState<CollectionsSortingOption>('1DayVolume')
   const marketplaceChain = useMarketplaceChain()
@@ -62,7 +62,18 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   const { data, isValidating } = useCollections(collectionQuery, {
     fallbackData: [ssr.collections[marketplaceChain.id]],
   })
-  const [collections, setCollections] = useState<ExtendedCollectionItem[]>(data)
+  
+  useEffect(() => {
+    if (data) {
+      const updateCollections = async () => {
+        const updatedCollectionsPromises = data.map(updateCollectionWithRatings);
+        const updatedCollectionsResults = await Promise.all(updatedCollectionsPromises);
+        setCollections(updatedCollectionsResults);
+      };
+      
+      updateCollections();
+    }
+  }, [data]);
 
   let volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -79,18 +90,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       volumeKey = '30day'
       break
   }
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      const newData = [];
-      for (const collection of data) {
-        newData.push(await updateCollectionWithRatings(collection));
-      }
-      setCollections(newData);
-    };
-  
-    fetchData();
-  }, [data]);
   
   return (
     <Layout>
