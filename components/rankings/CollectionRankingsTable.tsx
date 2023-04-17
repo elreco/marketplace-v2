@@ -22,7 +22,7 @@ import { useMediaQuery } from 'react-responsive'
 import { ExtendedCollectionItem } from 'types'
 
 type Props = {
-  collections: ExtendedCollectionItem[]
+  collections: Required<ExtendedCollectionItem[]>
   loading?: boolean
   volumeKey: '1day' | '7day' | '30day' | 'allTime'
 }
