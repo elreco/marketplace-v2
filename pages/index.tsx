@@ -1,7 +1,7 @@
 import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
 import { Text, Flex, Box, Button } from 'components/primitives'
 import Layout from 'components/Layout'
-import { ComponentPropsWithoutRef, useContext, useEffect, useState } from 'react'
+import { ComponentPropsWithoutRef, useContext, useEffect, useState, lazy, Suspense } from 'react'
 import { Footer } from 'components/home/Footer'
 import { useMediaQuery } from 'react-responsive'
 import { useMarketplaceChain, useMounted } from 'hooks'
@@ -21,8 +21,6 @@ import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsT
 import { ChainContext } from 'context/ChainContextProvider'
 import { ApiResponse, ChainCollections, ExtendedCollectionItem, ExtendedSchema } from 'types'
 
-type Props = InferGetStaticPropsType<typeof getStaticProps>
-
 async function updateCollectionWithRatings(collection: ExtendedCollectionItem) {
   const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
   const [reviewsAverageRatingData, reviewsCountData]: [ApiResponse<number>, ApiResponse<number>] = await Promise.all([
@@ -35,11 +33,14 @@ async function updateCollectionWithRatings(collection: ExtendedCollectionItem) {
   return collection
 }
 
+const CollectionRankingsTableWrapper = lazy(() => import('components/rankings/CollectionRankingsTableWrapper'));
+
+type Props = InferGetStaticPropsType<typeof getStaticProps>
+
 const IndexPage: NextPage<Props> = ({ ssr }) => {
   const isSSR = typeof window === 'undefined'
   const isMounted = useMounted()
   const compactToggleNames = useMediaQuery({ query: '(max-width: 800px)' })
-  const [collections, setCollections] = useState<ExtendedSchema['collections']>([]);
   const [sortByTime, setSortByTime] =
     useState<CollectionsSortingOption>('1DayVolume')
   const marketplaceChain = useMarketplaceChain()
@@ -62,18 +63,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   const { data, isValidating } = useCollections(collectionQuery, {
     fallbackData: [ssr.collections[marketplaceChain.id]],
   })
-  
-  useEffect(() => {
-    if (data) {
-      const updateCollections = async () => {
-        const updatedCollectionsPromises = data.map(updateCollectionWithRatings);
-        const updatedCollectionsResults = await Promise.all(updatedCollectionsPromises);
-        setCollections(updatedCollectionsResults);
-      };
-      
-      updateCollections();
-    }
-  }, [data]);
 
   let volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -146,13 +135,12 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
               <ChainToggle />
             </Flex>
           </Flex>
-          {(!isSSR && isMounted) && collections ? (
-            <CollectionRankingsTable
-              collections={collections}
-              loading={isValidating}
-              volumeKey={volumeKey}
-            />
-          ) : null}
+          
+          {(!isSSR && isMounted) && (
+            <Suspense fallback={<div>Loading...</div>}>
+              <CollectionRankingsTableWrapper data={data} isValidating={isValidating} volumeKey={volumeKey} />
+            </Suspense>
+          )}
           <Box css={{ alignSelf: 'center' }}>
             <Link href="/collection-rankings">
               <Button
@@ -210,7 +198,11 @@ export const getStaticProps: GetStaticProps<{
   responses.forEach((response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
-      collections[supportedChains[i].id].collections?.forEach(updateCollectionWithRatings)
+      collections[supportedChains[i].id].collections?.forEach(async (collection) => {
+        const updatedCollection = await updateCollectionWithRatings(collection);
+        collection.reviewsAverageRating = updatedCollection.reviewsAverageRating;
+        collection.reviewsCount = updatedCollection.reviewsCount;
+      });
     }
   })
 
