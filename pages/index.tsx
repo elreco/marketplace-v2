@@ -146,13 +146,13 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
               <ChainToggle />
             </Flex>
           </Flex>
-          {isSSR || !isMounted ? null : (
+          {(!isSSR && isMounted) && collections ? (
             <CollectionRankingsTable
               collections={collections}
               loading={isValidating}
               volumeKey={volumeKey}
             />
-          )}
+          ) : null}
           <Box css={{ alignSelf: 'center' }}>
             <Link href="/collection-rankings">
               <Button
