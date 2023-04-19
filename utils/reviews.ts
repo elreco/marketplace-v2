@@ -2,9 +2,9 @@ import { ApiResponse, ExtendedCollectionItem, ReviewInsights } from 'types'
 
 export async function updateCollectionsWithReviews(
   collections: ExtendedCollectionItem[] | undefined
-): Promise<ExtendedCollectionItem[] | undefined> {
+): Promise<ExtendedCollectionItem[]> {
   if (!collections) {
-    return undefined
+    return []
   }
 
   try {

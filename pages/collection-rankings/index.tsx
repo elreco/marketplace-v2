@@ -204,14 +204,13 @@ export const getStaticProps: GetStaticProps<{
   const responses = await Promise.allSettled(promises)
   const collections: ChainCollections = {}
 
-  responses.forEach((response, i) => {
+  responses.forEach(async (response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
-      collections[supportedChains[i].id].collections?.forEach(
-        async (collection) => {
-          collection = await updateCollectionsWithReviews(collection)
-        }
-      )
+      collections[supportedChains[i].id].collections =
+        await updateCollectionsWithReviews(
+          collections[supportedChains[i].id].collections
+        )
     }
   })
 
