@@ -19,19 +19,8 @@ import CollectionsTimeDropdown, {
 import { Head } from 'components/Head'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
 import { ChainContext } from 'context/ChainContextProvider'
-import { ApiResponse, ChainCollections, ExtendedCollectionItem, ExtendedSchema } from 'types'
-
-async function updateCollectionWithRatings(collection: ExtendedCollectionItem) {
-  const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
-  const [reviewsAverageRatingData, reviewsCountData]: [ApiResponse<number>, ApiResponse<number>] = await Promise.all([
-    fetch(`${HOST_URL}/api/reviews/average?collection_id=${collection.id}`).then((res) => res.json()),
-    fetch(`${HOST_URL}/api/reviews/count?collection_id=${collection.id}`).then((res) => res.json())
-  ]);
-
-  collection.reviewsAverageRating = reviewsAverageRatingData.data;
-  collection.reviewsCount = reviewsCountData.data;
-  return collection
-}
+import { ChainCollections } from 'types'
+import { updateCollectionWithReviews } from 'utils/reviews'
 
 const CollectionRankingsTableWrapper = lazy(() => import('components/rankings/CollectionRankingsTableWrapper'));
 
@@ -199,7 +188,7 @@ export const getStaticProps: GetStaticProps<{
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
       collections[supportedChains[i].id].collections?.forEach(async (collection) => {
-        const updatedCollection = await updateCollectionWithRatings(collection);
+        const updatedCollection = await updateCollectionWithReviews(collection);
         collection.reviewsAverageRating = updatedCollection.reviewsAverageRating;
         collection.reviewsCount = updatedCollection.reviewsCount;
       });
