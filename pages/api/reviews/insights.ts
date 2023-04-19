@@ -39,11 +39,11 @@ export default async function handler(
 ) {
   const { query } = req
   const { collection_ids } = query
-
+  console.log("ids", collection_ids && typeof collection_ids === 'string')
   try {
     if (collection_ids && typeof collection_ids === 'string') {
       const collectionIdsArray = JSON.parse(collection_ids)
-
+      
       if (
         Array.isArray(collectionIdsArray) &&
         collectionIdsArray.every((id) => typeof id === 'string')
@@ -56,6 +56,7 @@ export default async function handler(
           return { collection_id, count, average_rating: formattedRating }
         })
         const results = await Promise.all(ids)
+        
         res.status(200).json({ data: results })
         return
       }

@@ -71,9 +71,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(false)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
   const [reviewsAverageRating, setReviewsAverageRating] = useState(
-    ssr.reviewsAverageRating
+    ssr.reviewInsights.average_rating
   )
-  const [reviewsCount, setReviewsCount] = useState(ssr.reviewsCount)
+  const [reviewsCount, setReviewsCount] = useState(ssr.reviewInsights.count)
   const [isReviewLoading, setReviewLoading] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
   const [initialTokenFallbackData, setInitialTokenFallbackData] = useState(true)
@@ -139,7 +139,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   const updateReviewsData = async () => {
     try {
-      const ids = [id] // Replace this line with an array of collection_ids as needed
+      const ids = [id]
       const response = await fetch(
         `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
       )
@@ -788,8 +788,7 @@ export const getStaticProps: GetStaticProps<{
     collection?: paths['/collections/v5']['get']['responses']['200']['schema']
     tokens?: paths['/tokens/v6']['get']['responses']['200']['schema']
     hasAttributes: boolean
-    reviewsAverageRating: number
-    reviewsCount: number
+    reviewInsights: ReviewInsights
   }
   id: string | undefined
 }> = async ({ params }) => {
@@ -834,18 +833,15 @@ export const getStaticProps: GetStaticProps<{
     headers
   )
 
-  const reviewsAverageRatingPromise = fetch(
-    `${HOST_URL}/api/reviews/average?collection_id=${id}`
-  )
-  const reviewsCountPromise = fetch(
-    `${HOST_URL}/api/reviews/count?collection_id=${id}`
+  const ids = [id]
+  const reviewInsightsPromise = fetch(
+    `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
   )
 
   const promises = await Promise.allSettled([
     collectionsPromise,
     tokensPromise,
-    reviewsAverageRatingPromise,
-    reviewsCountPromise,
+    reviewInsightsPromise
   ]).catch(() => {})
   const collection: Props['ssr']['collection'] =
     promises?.[0].status === 'fulfilled' && promises[0].value.data
@@ -862,11 +858,19 @@ export const getStaticProps: GetStaticProps<{
     ) || false
 
   const {
-    data: reviewsAverageRating,
-  }: ApiResponse<Props['ssr']['reviewsAverageRating']> =
+    data: reviewInsights,
+  }: ApiResponse<Props['ssr']['reviewInsights'][]> =
     promises?.[2].status === 'fulfilled' && (await promises[2].value.json())
-  const { data: reviewsCount }: ApiResponse<Props['ssr']['reviewsCount']> =
-    promises?.[3].status === 'fulfilled' && (await promises[3].value.json())
+
+  const insightsMap: Record<string, ReviewInsights> = reviewInsights.reduce(
+    (acc: Record<string, ReviewInsights>, insight) => {
+      acc[insight.collection_id] = insight
+      return acc
+    },
+    {}
+  )
+
+  const insight = insightsMap[String(id)]
 
   if (
     collection &&
@@ -888,8 +892,7 @@ export const getStaticProps: GetStaticProps<{
         collection,
         tokens,
         hasAttributes,
-        reviewsAverageRating,
-        reviewsCount,
+        reviewInsights: insight
       },
       id,
     },
