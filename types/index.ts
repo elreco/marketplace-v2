@@ -6,8 +6,14 @@ export interface Review {
   user_id: `0x${string}`
   rating: number
   comment: string
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ReviewInsights {
+  count: number
+  average_rating: number
+  collection_id: string
 }
 
 export type ApiResponse<T> = {
@@ -27,12 +33,15 @@ export interface SupabaseDatabase {
   }
 }
 
-type CollectionSchema = paths['/collections/v5']['get']['responses']['200']['schema']
+type CollectionSchema =
+  paths['/collections/v5']['get']['responses']['200']['schema']
 
-export type ExtendedCollectionItem = NonNullable<CollectionSchema['collections']>[number] & { reviewsAverageRating?: number; reviewsCount?: number; }
+export type ExtendedCollectionItem = NonNullable<
+  CollectionSchema['collections']
+>[number] & { reviewsAverageRating?: number; reviewsCount?: number }
 
 export type ExtendedSchema = Omit<CollectionSchema, 'collections'> & {
-  collections?: ExtendedCollectionItem[];
-};
+  collections?: ExtendedCollectionItem[]
+}
 
 export type ChainCollections = Record<string, ExtendedSchema>

@@ -18,7 +18,7 @@ const RatingStars: FC<Props> = ({
   onRatingChange,
   readOnly = false,
   starSize = 'xs',
-  isRatingTextSmall = false
+  isRatingTextSmall = false,
 }) => {
   const [hoveredStar, setHoveredStar] = useState(-1)
   const fullStars = Math.floor(rating)
@@ -75,8 +75,15 @@ const RatingStars: FC<Props> = ({
         >
           <FontAwesomeIcon icon={getStar(star, index)} size={starSize} />
         </Text>
-      ))} 
-      {readOnly && <Text css={{marginLeft: '$2'}} style={isRatingTextSmall ? 'subtitle2' : 'h6'}>{rating}</Text>}
+      ))}
+      {readOnly && (
+        <Text
+          css={{ marginLeft: '$2' }}
+          style={isRatingTextSmall ? 'subtitle2' : 'h6'}
+        >
+          {rating}
+        </Text>
+      )}
     </Flex>
   )
 }

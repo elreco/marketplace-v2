@@ -54,7 +54,7 @@ type StatHeaderProps = {
 const StatHeader: FC<StatHeaderProps> = ({
   collection,
   reviewsAverageRating,
-  reviewsCount
+  reviewsCount,
 }) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 600 }) && isMounted
@@ -103,11 +103,9 @@ const StatHeader: FC<StatHeaderProps> = ({
         />
       </StatBox>
 
-      
-        <StatBox label="Listed">
-          <Text style="h6">{formatNumber(listedPercentage)}%</Text>
-        </StatBox>
-      
+      <StatBox label="Listed">
+        <Text style="h6">{formatNumber(listedPercentage)}%</Text>
+      </StatBox>
 
       <StatBox label="Total Volume">
         <FormatCryptoCurrency

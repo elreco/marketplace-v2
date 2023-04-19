@@ -299,14 +299,30 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
           />
         </TableCell>
         <TableCell>
-          {collection?.reviewsAverageRating && collection?.reviewsAverageRating > 0 ? <RatingStars rating={collection?.reviewsAverageRating} readOnly isRatingTextSmall /> : '-'}
+          {collection?.reviewsAverageRating &&
+          collection?.reviewsAverageRating > 0 ? (
+            <RatingStars
+              rating={collection?.reviewsAverageRating}
+              readOnly
+              isRatingTextSmall
+            />
+          ) : (
+            '-'
+          )}
         </TableCell>
       </TableRow>
     )
   }
 }
 
-const headings = ['Collection', '', 'Volume', 'Floor Price', 'Top Offer', 'Rating']
+const headings = [
+  'Collection',
+  '',
+  'Volume',
+  'Floor Price',
+  'Top Offer',
+  'Rating',
+]
 
 const TableHeading = () => (
   <HeaderRow

@@ -1,7 +1,14 @@
 import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
 import { Text, Flex, Box, Button } from 'components/primitives'
 import Layout from 'components/Layout'
-import { ComponentPropsWithoutRef, useContext, useEffect, useState, lazy, Suspense } from 'react'
+import {
+  ComponentPropsWithoutRef,
+  useContext,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+} from 'react'
 import { Footer } from 'components/home/Footer'
 import { useMediaQuery } from 'react-responsive'
 import { useMarketplaceChain, useMounted } from 'hooks'
@@ -20,9 +27,11 @@ import { Head } from 'components/Head'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
 import { ChainContext } from 'context/ChainContextProvider'
 import { ChainCollections } from 'types'
-import { updateCollectionWithReviews } from 'utils/reviews'
+import { updateCollectionsWithReviews } from 'utils/reviews'
 
-const CollectionRankingsTableWrapper = lazy(() => import('components/rankings/CollectionRankingsTableWrapper'));
+const CollectionRankingsTableWrapper = lazy(
+  () => import('components/rankings/CollectionRankingsTableWrapper')
+)
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -68,7 +77,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       volumeKey = '30day'
       break
   }
-  
+
   return (
     <Layout>
       <Head />
@@ -124,10 +133,14 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
               <ChainToggle />
             </Flex>
           </Flex>
-          
-          {(!isSSR && isMounted) && (
+
+          {!isSSR && isMounted && (
             <Suspense fallback={<div>Loading...</div>}>
-              <CollectionRankingsTableWrapper data={data} isValidating={isValidating} volumeKey={volumeKey} />
+              <CollectionRankingsTableWrapper
+                data={data}
+                isValidating={isValidating}
+                volumeKey={volumeKey}
+              />
             </Suspense>
           )}
           <Box css={{ alignSelf: 'center' }}>
@@ -156,12 +169,12 @@ export const getStaticProps: GetStaticProps<{
   }
 }> = async () => {
   let collectionQuery: paths['/collections/v5']['get']['parameters']['query'] =
-  {
-    sortBy: '1DayVolume',
-    normalizeRoyalties: NORMALIZE_ROYALTIES,
-    includeTopBid: true,
-    limit: 10,
-  }
+    {
+      sortBy: '1DayVolume',
+      normalizeRoyalties: NORMALIZE_ROYALTIES,
+      includeTopBid: true,
+      limit: 10,
+    }
 
   const promises: ReturnType<typeof fetcher>[] = []
   supportedChains.forEach((chain) => {
@@ -184,14 +197,13 @@ export const getStaticProps: GetStaticProps<{
   const responses = await Promise.allSettled(promises)
   const collections: ChainCollections = {}
 
-  responses.forEach((response, i) => {
+  responses.forEach(async (response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
-      collections[supportedChains[i].id].collections?.forEach(async (collection) => {
-        const updatedCollection = await updateCollectionWithReviews(collection);
-        collection.reviewsAverageRating = updatedCollection.reviewsAverageRating;
-        collection.reviewsCount = updatedCollection.reviewsCount;
-      });
+      collections[supportedChains[i].id].collections =
+        await updateCollectionsWithReviews(
+          collections[supportedChains[i].id].collections
+        )
     }
   })
 

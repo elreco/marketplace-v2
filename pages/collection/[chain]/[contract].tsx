@@ -48,8 +48,7 @@ import { Address, useAccount } from 'wagmi'
 import titleCase from 'utils/titleCase'
 import Link from 'next/link'
 import Img from 'components/primitives/Img'
-import { ApiResponse, Review } from 'types'
-import { formatNumber } from 'utils/numbers'
+import { ApiResponse, Review, ReviewInsights } from 'types'
 import WriteReview from 'components/buttons/WriteReview'
 import { ToastContext } from 'context/ToastContextProvider'
 
@@ -71,7 +70,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const { address } = useAccount()
   const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(false)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
-  const [reviewsAverageRating, setReviewsAverageRating] = useState(ssr.reviewsAverageRating)
+  const [reviewsAverageRating, setReviewsAverageRating] = useState(
+    ssr.reviewsAverageRating
+  )
   const [reviewsCount, setReviewsCount] = useState(ssr.reviewsCount)
   const [isReviewLoading, setReviewLoading] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
@@ -89,79 +90,86 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const handleReviewSubmit = async (rating: number, comment: string) => {
-    setReviewLoading(true);
-  
+    setReviewLoading(true)
+
     try {
       if (!address || !id) {
-        return;
+        return
       }
-  
+
       const payload: Review = {
         collection_id: id,
         rating,
         comment,
         user_id: address,
-      };
-  
+      }
+
       const response = await fetch(`${HOST_URL}/api/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      });
-  
+      })
+
       if (response.status === 409) {
         addToast?.({
           title: 'You already reviewed this collection',
           description: 'We cannot add your review.',
-        });
+        })
       } else if (!response.ok) {
         addToast?.({
           title: 'Review not added',
           description: 'We cannot add your review.',
-        });
-      } else 
-      {
-        await updateReviewsData();
-  
+        })
+      } else {
+        await updateReviewsData()
+
         addToast?.({
           title: 'Your review has been added',
           description: 'Thanks for submitting your review.',
-        });
+        })
       }
     } catch (error) {
-      console.error("Can't add review:", error);
+      console.error("Can't add review:", error)
     } finally {
-      setReviewLoading(false);
+      setReviewLoading(false)
     }
-  };
+  }
 
   const updateReviewsData = async () => {
     try {
-      const [reviewsAverageRatingData, reviewsCountData] = await Promise.all([
-        fetch(`${HOST_URL}/api/reviews/average?collection_id=${id}`),
-        fetch(`${HOST_URL}/api/reviews/count?collection_id=${id}`),
-      ]);
-  
-      if (!reviewsAverageRatingData.ok || !reviewsCountData.ok) {
-        throw new Error(`Failed to fetch reviews data`);
+      const ids = [id] // Replace this line with an array of collection_ids as needed
+      const response = await fetch(
+        `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
+      )
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reviews data`)
       }
-  
-      const [reviewsAverageRatingJson, reviewsCountJson]: [
-        ApiResponse<number>,
-        ApiResponse<number>
-      ] = await Promise.all([
-        reviewsAverageRatingData.json(),
-        reviewsCountData.json(),
-      ]);
-  
-      setReviewsAverageRating(reviewsAverageRatingJson.data);
-      setReviewsCount(reviewsCountJson.data);
+
+      const { data }: ApiResponse<ReviewInsights[]> = await response.json()
+      const insightsMap: Record<string, ReviewInsights> = data.reduce(
+        (acc: Record<string, ReviewInsights>, insight) => {
+          acc[insight.collection_id] = insight
+          return acc
+        },
+        {}
+      )
+
+      const insight = insightsMap[String(id)]
+
+      if (insight) {
+        setReviewsAverageRating(insight.average_rating)
+        setReviewsCount(insight.count)
+      } else {
+        setReviewsAverageRating(0)
+        setReviewsCount(0)
+      }
     } catch (error) {
-      console.error("Can't update review data:", error);
+      console.error("Can't update review data:", error)
     }
-  };
+  }
 
   const scrollToTop = () => {
     let top = (scrollRef.current?.offsetTop || 0) - (NAVBAR_HEIGHT + 16)
@@ -618,7 +626,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               </Flex>
             </TabsContent>
             <TabsContent value="reviews">
-            <Flex
+              <Flex
                 css={{
                   gap: attributeFiltersOpen ? '$5' : '',
                   position: 'relative',
@@ -825,7 +833,7 @@ export const getStaticProps: GetStaticProps<{
     tokensQuery,
     headers
   )
-  
+
   const reviewsAverageRatingPromise = fetch(
     `${HOST_URL}/api/reviews/average?collection_id=${id}`
   )

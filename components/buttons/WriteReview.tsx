@@ -18,7 +18,7 @@ const WriteReview: FC<Props> = ({
   buttonCss,
   buttonProps = {},
   onReviewSubmit,
-  isLoading
+  isLoading,
 }) => {
   const { isDisconnected } = useAccount()
   const { data: signer } = useSigner()
@@ -53,7 +53,6 @@ const WriteReview: FC<Props> = ({
       setRating(0)
       setComment('')
     }, 200)
-    
   }
 
   if (isDisconnected || isInTheWrongNetwork) {
@@ -81,7 +80,12 @@ const WriteReview: FC<Props> = ({
   }
 
   const trigger = (
-    <Button disabled={isLoading} css={buttonCss} onClick={() => setOpen(true)} {...buttonProps}>
+    <Button
+      disabled={isLoading}
+      css={buttonCss}
+      onClick={() => setOpen(true)}
+      {...buttonProps}
+    >
       Write a review
     </Button>
   )

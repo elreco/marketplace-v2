@@ -3,6 +3,8 @@ import { Text, Flex, Box } from 'components/primitives'
 import Layout from 'components/Layout'
 import {
   ComponentPropsWithoutRef,
+  lazy,
+  Suspense,
   useContext,
   useEffect,
   useRef,
@@ -25,6 +27,12 @@ import ChainToggle from 'components/common/ChainToggle'
 import { Head } from 'components/Head'
 import { ChainContext } from 'context/ChainContextProvider'
 import { useRouter } from 'next/router'
+import { ChainCollections } from 'types'
+import { updateCollectionsWithReviews } from 'utils/reviews'
+
+const CollectionRankingsTableWrapper = lazy(
+  () => import('components/rankings/CollectionRankingsTableWrapper')
+)
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -71,8 +79,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       fallbackData: [ssr.collections[marketplaceChain.id]],
     }
   )
-
-  let collections = data || []
 
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const loadMoreObserver = useIntersectionObserver(loadMoreRef, {})
@@ -139,12 +145,14 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
               <ChainToggle />
             </Flex>
           </Flex>
-          {isSSR || !isMounted ? null : (
-            <CollectionRankingsTable
-              collections={collections}
-              volumeKey={volumeKey}
-              loading={isValidating}
-            />
+          {!isSSR && isMounted && (
+            <Suspense fallback={<div>Loading...</div>}>
+              <CollectionRankingsTableWrapper
+                data={data}
+                isValidating={isValidating}
+                volumeKey={volumeKey}
+              />
+            </Suspense>
           )}
           <Box
             ref={loadMoreRef}
@@ -162,10 +170,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
     </Layout>
   )
 }
-
-type CollectionSchema =
-  paths['/collections/v5']['get']['responses']['200']['schema']
-type ChainCollections = Record<string, CollectionSchema>
 
 export const getStaticProps: GetStaticProps<{
   ssr: {
@@ -196,11 +200,18 @@ export const getStaticProps: GetStaticProps<{
       })
     )
   })
+
   const responses = await Promise.allSettled(promises)
   const collections: ChainCollections = {}
+
   responses.forEach((response, i) => {
     if (response.status === 'fulfilled') {
       collections[supportedChains[i].id] = response.value.data
+      collections[supportedChains[i].id].collections?.forEach(
+        async (collection) => {
+          collection = await updateCollectionsWithReviews(collection)
+        }
+      )
     }
   })
 
