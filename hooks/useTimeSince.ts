@@ -16,7 +16,7 @@ export default function (timestamp?: number | string) {
   const [timeSince, setTimeSince] = useState('')
 
   useEffect(() => {
-    if (timestamp) {
+    if (timestamp && typeof timestamp === 'number') {
       setTimeSince(dayjs.unix(timestamp).fromNow())
     } else {
       setTimeSince('')
