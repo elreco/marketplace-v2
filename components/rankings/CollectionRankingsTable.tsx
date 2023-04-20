@@ -1,6 +1,7 @@
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
+import LoadingSpinner from 'components/common/LoadingSpinner'
 import { OpenSeaVerified } from 'components/common/OpenSeaVerified'
 import { NAVBAR_HEIGHT } from 'components/navbar'
 import {
@@ -35,9 +36,12 @@ export const CollectionRankingsTable: FC<Props> = ({
   volumeKey,
 }) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
-
+  if (loading) {
+    return <Flex css={{ py: '$6', gap: '$4', width: '100%' }} justify="center" align="center"><LoadingSpinner /></Flex>
+  }
   return (
     <>
+    
       {!loading && collections.length === 0 ? (
         <Flex
           direction="column"

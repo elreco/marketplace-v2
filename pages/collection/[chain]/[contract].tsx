@@ -656,7 +656,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         },
                       }}
                     >
-                      <SortReviews />
+                      {/*<SortReviews />*/}
                       <WriteReview
                         isLoading={isReviewLoading}
                         onReviewSubmit={handleReviewSubmit}

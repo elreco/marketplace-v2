@@ -4,7 +4,6 @@ import Layout from 'components/Layout'
 import {
   ComponentPropsWithoutRef,
   useContext,
-  useEffect,
   useState,
   lazy,
   Suspense,
