@@ -670,7 +670,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       />
                     </Flex>
                   </Flex>
-                  <ReviewsTable reviews={ssr.reviews}/>
+                  <ReviewsTable reviews={ssr.reviews} />
                   {ssr.reviews.length == 0 && (
                     <Flex
                       direction="column"
@@ -758,15 +758,13 @@ export const getStaticProps: GetStaticProps<{
     `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
   )
 
-  const reviewsPromise = fetch(
-    `${HOST_URL}/api/reviews?collection_id=${id}`
-  )
+  const reviewsPromise = fetch(`${HOST_URL}/api/reviews?collection_id=${id}`)
 
   const promises = await Promise.allSettled([
     collectionsPromise,
     tokensPromise,
     reviewInsightsPromise,
-    reviewsPromise
+    reviewsPromise,
   ]).catch(() => {})
   const collection: Props['ssr']['collection'] =
     promises?.[0].status === 'fulfilled' && promises[0].value.data
@@ -797,15 +795,10 @@ export const getStaticProps: GetStaticProps<{
 
   const insight = insightsMap[String(id)]
 
-  const {
-    data: reviews,
-  }: ApiResponse<Props['ssr']['reviews']> =
+  const { data: reviews }: ApiResponse<Props['ssr']['reviews']> =
     promises?.[3].status === 'fulfilled' && (await promises[3].value.json())
   reviews.forEach((review) => {
-    fetcher(
-      `${reservoirBaseUrl}/users/${review.user_id}/tokens/v6`,
-      headers
-    )
+    fetcher(`${reservoirBaseUrl}/users/${review.user_id}/tokens/v6`, headers)
   })
 
   if (
@@ -829,7 +822,7 @@ export const getStaticProps: GetStaticProps<{
         tokens,
         hasAttributes,
         reviewInsights: insight,
-        reviews
+        reviews,
       },
       id,
     },

@@ -37,11 +37,18 @@ export const CollectionRankingsTable: FC<Props> = ({
 }) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
   if (loading) {
-    return <Flex css={{ py: '$6', gap: '$4', width: '100%' }} justify="center" align="center"><LoadingSpinner /></Flex>
+    return (
+      <Flex
+        css={{ py: '$6', gap: '$4', width: '100%' }}
+        justify="center"
+        align="center"
+      >
+        <LoadingSpinner />
+      </Flex>
+    )
   }
   return (
     <>
-    
       {!loading && collections.length === 0 ? (
         <Flex
           direction="column"

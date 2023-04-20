@@ -1,4 +1,9 @@
-import React, { ComponentPropsWithoutRef, useEffect, useMemo, useState } from 'react'
+import React, {
+  ComponentPropsWithoutRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { ExtendedCollectionItem } from 'types'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
 import { updateCollectionsWithReviews } from 'utils/reviews'
@@ -16,35 +21,34 @@ export const CollectionRankingsTableWrapper: React.FC<
 > = ({ data, isValidating, volumeKey }) => {
   const [collections, setCollections] = useState<ExtendedCollectionItem[]>([])
   const [isLoading, setLoading] = useState(true)
-  
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    setLoading(true);
-  
+    setLoading(true)
+
     if (timeoutId) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
     }
-  
+
     const updateCollections = async () => {
-      const updatedCollectionsResults = await updateCollectionsWithReviews(data);
-      setLoading(false);
+      const updatedCollectionsResults = await updateCollectionsWithReviews(data)
+      setLoading(false)
       if (updatedCollectionsResults) {
-        setCollections(updatedCollectionsResults);
+        setCollections(updatedCollectionsResults)
       }
-    };
-  
+    }
+
     const newTimeoutId = setTimeout(() => {
-      updateCollections();
-    }, 700);
-  
-    setTimeoutId(newTimeoutId);
-  
+      updateCollections()
+    }, 700)
+
+    setTimeoutId(newTimeoutId)
+
     return () => {
-      clearTimeout(newTimeoutId);
-    };
-  }, [data]);
-  
+      clearTimeout(newTimeoutId)
+    }
+  }, [data])
 
   return (
     <CollectionRankingsTable
