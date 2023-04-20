@@ -69,7 +69,7 @@ export default [
     apiKey: process.env.ARBITRUM_RESERVOIR_API_KEY,
     coingeckoId: 'arbitrum-iou',
   },
-  {
+  /*{
     ...goerli,
     lightIconUrl: '/icons/goerli-icon-dark.svg',
     darkIconUrl: '/icons/goerli-icon-light.svg',
@@ -80,5 +80,5 @@ export default [
     coingeckoId: 'goerli-eth',
     collectionSetId: process.env.NEXT_PUBLIC_GOERLI_COMMUNITY,
     community: process.env.NEXT_PUBLIC_GOERLI_COMMUNITY,
-  },
+  },*/
 ] as ReservoirChain[]
