@@ -39,7 +39,6 @@ export default async function handler(
 ) {
   const { query } = req
   const { collection_ids } = query
-  console.log("ids", collection_ids && typeof collection_ids === 'string')
   try {
     if (collection_ids && typeof collection_ids === 'string') {
       const collectionIdsArray = JSON.parse(collection_ids)

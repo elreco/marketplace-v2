@@ -51,6 +51,8 @@ import Img from 'components/primitives/Img'
 import { ApiResponse, Review, ReviewInsights } from 'types'
 import WriteReview from 'components/buttons/WriteReview'
 import { ToastContext } from 'context/ToastContextProvider'
+import { ReviewsTable } from 'components/reviews/ReviewsTable'
+import { SortReviews } from 'components/reviews/SortReviews'
 
 type ActivityTypes = Exclude<
   NonNullable<
@@ -633,19 +635,6 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                 }}
                 ref={scrollRef}
               >
-                {isSmallDevice ? (
-                  <MobileAttributeFilters
-                    attributes={attributes}
-                    scrollToTop={scrollToTop}
-                  />
-                ) : (
-                  <AttributeFilters
-                    attributes={attributes}
-                    open={attributeFiltersOpen}
-                    setOpen={setAttributeFiltersOpen}
-                    scrollToTop={scrollToTop}
-                  />
-                )}
                 <Box
                   css={{
                     flex: 1,
@@ -653,12 +642,6 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                   }}
                 >
                   <Flex justify="between" css={{ marginBottom: '$4' }}>
-                    {attributes && attributes.length > 0 && !isSmallDevice && (
-                      <FilterButton
-                        open={attributeFiltersOpen}
-                        setOpen={setAttributeFiltersOpen}
-                      />
-                    )}
                     <Flex
                       css={{
                         ml: 'auto',
@@ -673,7 +656,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                         },
                       }}
                     >
-                      <SortTokens />
+                      <SortReviews />
                       <WriteReview
                         isLoading={isReviewLoading}
                         onReviewSubmit={handleReviewSubmit}
@@ -687,72 +670,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       />
                     </Flex>
                   </Flex>
-                  {!isSmallDevice && <SelectedAttributes />}
-                  <Grid
-                    css={{
-                      gap: '$4',
-                      pb: '$6',
-                      gridTemplateColumns:
-                        'repeat(auto-fill, minmax(200px, 1fr))',
-                      '@md': {
-                        gridTemplateColumns:
-                          'repeat(auto-fill, minmax(240px, 1fr))',
-                      },
-                    }}
-                  >
-                    {isFetchingInitialData
-                      ? Array(10)
-                          .fill(null)
-                          .map((_, index) => (
-                            <LoadingCard key={`loading-card-${index}`} />
-                          ))
-                      : tokens.map((token, i) => (
-                          <TokenCard
-                            key={i}
-                            token={token}
-                            orderQuantity={
-                              token?.market?.floorAsk?.quantityRemaining
-                            }
-                            address={address as Address}
-                            mutate={mutate}
-                            rarityEnabled={rarityEnabledCollection}
-                            onMediaPlayed={(e) => {
-                              if (
-                                playingElement &&
-                                playingElement !== e.nativeEvent.target
-                              ) {
-                                playingElement.pause()
-                              }
-                              const element =
-                                (e.nativeEvent.target as HTMLAudioElement) ||
-                                (e.nativeEvent.target as HTMLVideoElement)
-                              if (element) {
-                                setPlayingElement(element)
-                              }
-                            }}
-                          />
-                        ))}
-                    <Box
-                      ref={loadMoreRef}
-                      css={{
-                        display: isFetchingPage ? 'none' : 'block',
-                      }}
-                    >
-                      {(hasNextPage || isFetchingPage) &&
-                        !isFetchingInitialData && <LoadingCard />}
-                    </Box>
-                    {(hasNextPage || isFetchingPage) &&
-                      !isFetchingInitialData && (
-                        <>
-                          {Array(6)
-                            .fill(null)
-                            .map((_, index) => (
-                              <LoadingCard key={`loading-card-${index}`} />
-                            ))}
-                        </>
-                      )}
-                  </Grid>
-                  {tokens.length == 0 && !isFetchingPage && (
+                  <ReviewsTable reviews={ssr.reviews}/>
+                  {ssr.reviews.length == 0 && (
                     <Flex
                       direction="column"
                       align="center"
@@ -761,7 +680,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       <Text css={{ color: '$gray11' }}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} size="2xl" />
                       </Text>
-                      <Text css={{ color: '$gray11' }}>No items found</Text>
+                      <Text css={{ color: '$gray11' }}>No reviews found</Text>
                     </Flex>
                   )}
                 </Box>
@@ -789,6 +708,7 @@ export const getStaticProps: GetStaticProps<{
     tokens?: paths['/tokens/v6']['get']['responses']['200']['schema']
     hasAttributes: boolean
     reviewInsights: ReviewInsights
+    reviews: Review[]
   }
   id: string | undefined
 }> = async ({ params }) => {
@@ -838,10 +758,15 @@ export const getStaticProps: GetStaticProps<{
     `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
   )
 
+  const reviewsPromise = fetch(
+    `${HOST_URL}/api/reviews?collection_id=${id}`
+  )
+
   const promises = await Promise.allSettled([
     collectionsPromise,
     tokensPromise,
-    reviewInsightsPromise
+    reviewInsightsPromise,
+    reviewsPromise
   ]).catch(() => {})
   const collection: Props['ssr']['collection'] =
     promises?.[0].status === 'fulfilled' && promises[0].value.data
@@ -872,6 +797,17 @@ export const getStaticProps: GetStaticProps<{
 
   const insight = insightsMap[String(id)]
 
+  const {
+    data: reviews,
+  }: ApiResponse<Props['ssr']['reviews']> =
+    promises?.[3].status === 'fulfilled' && (await promises[3].value.json())
+  reviews.forEach((review) => {
+    fetcher(
+      `${reservoirBaseUrl}/users/${review.user_id}/tokens/v6`,
+      headers
+    )
+  })
+
   if (
     collection &&
     collection.collections?.[0].contractKind === 'erc1155' &&
@@ -892,7 +828,8 @@ export const getStaticProps: GetStaticProps<{
         collection,
         tokens,
         hasAttributes,
-        reviewInsights: insight
+        reviewInsights: insight,
+        reviews
       },
       id,
     },
