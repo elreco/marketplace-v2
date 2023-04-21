@@ -6,11 +6,12 @@ import { useMarketplaceChain } from 'hooks'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { RegularModal } from 'components/common/RegularModal'
 import RatingStars from 'components/RatingStars'
+import { Review } from 'types'
 
 type Props = {
   buttonCss?: CSS
   buttonProps?: ComponentProps<typeof Button>
-  onReviewSubmit?: (rating: number, review: string) => void
+  onReviewSubmit?: (review: Pick<Review, "rating" | "comment">) => void
   isLoading?: boolean
 }
 
@@ -45,7 +46,7 @@ const WriteReview: FC<Props> = ({
     e.preventDefault()
 
     if (onReviewSubmit) {
-      onReviewSubmit(rating, comment)
+      onReviewSubmit({ rating, comment })
     }
 
     setOpen(false)
@@ -93,7 +94,7 @@ const WriteReview: FC<Props> = ({
   return (
     <RegularModal title="Write a review" isOpen={isOpen} trigger={trigger}>
       <Text>
-        Add a rating for the NFT or collection by selecting a score from 1 to 5,
+        Add a rating for the collection by selecting a score from 1 to 5,
         with 1 being the lowest and 5 being the highest.
       </Text>
       <form onSubmit={handleSave}>

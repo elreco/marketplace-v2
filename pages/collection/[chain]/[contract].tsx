@@ -76,6 +76,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     ssr.reviewInsights.average_rating
   )
   const [reviewsCount, setReviewsCount] = useState(ssr.reviewInsights.count)
+  const [reviews, setReviews] = useState(ssr.reviews)
   const [isReviewLoading, setReviewLoading] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
   const [initialTokenFallbackData, setInitialTokenFallbackData] = useState(true)
@@ -91,9 +92,12 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
-  const handleReviewSubmit = async (rating: number, comment: string) => {
+  const handleReviewSubmit = async (review: Pick<Review, "rating" | "comment">) => {
     setReviewLoading(true)
-
+    const {
+      rating,
+      comment
+    } = review
     try {
       if (!address || !id) {
         return
@@ -125,6 +129,10 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
           description: 'We cannot add your review.',
         })
       } else {
+        const { data } = await response.json()
+        const updatedReviews = [...reviews]
+        updatedReviews.push(data)
+        setReviews(updatedReviews)
         await updateReviewsData()
 
         addToast?.({
@@ -134,6 +142,107 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
       }
     } catch (error) {
       console.error("Can't add review:", error)
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  const handleReviewUpdate = async (review: Pick<Review, "id" | "rating" | "comment">) => {
+    setReviewLoading(true)
+    const {
+      id: reviewId,
+      rating,
+      comment
+    } = review
+    try {
+      if (!address || !id) {
+        return
+      }
+
+      const payload: Review = {
+        collection_id: id,
+        rating,
+        comment,
+        user_id: address,
+      }
+
+      const response = await fetch(`${HOST_URL}/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        addToast?.({
+          title: 'Review not modified',
+          description: 'We cannot modify your review.',
+        })
+      } else {
+        const {data: newData} = await response.json() as Review
+        const index = reviews.findIndex((r) => r.id === reviewId)
+        const updatedReviews = [...reviews];
+        if (index > -1) {
+          updatedReviews[index] = {
+            ...updatedReviews[index],
+            ...newData,
+          };
+
+          setReviews(updatedReviews);
+        }
+        await updateReviewsData()
+
+        addToast?.({
+          title: 'Your review has been modified',
+          description: 'Thanks for modifying your review.',
+        })
+      }
+    } catch (error) {
+      console.error("Can't modify review:", error)
+    } finally {
+      setReviewLoading(false)
+    }
+  }
+
+  const handleReviewDelete = async (review: Pick<Review, "id">) => {
+    setReviewLoading(true)
+    const {
+      id: reviewId
+    } = review
+    try {
+      if (!address || !id) {
+        return
+      }
+
+      const response = await fetch(`${HOST_URL}/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      if (!response.ok) {
+        addToast?.({
+          title: 'Review not deleted',
+          description: 'We cannot delete your review.',
+        })
+      } else {
+        const index = reviews.findIndex((r) => r.id === reviewId)
+        const updatedReviews = [...reviews];
+        if (index > -1) {
+          updatedReviews.splice(index, 1)
+          setReviews(updatedReviews)
+        }
+        await updateReviewsData()
+
+        addToast?.({
+          title: 'Your review has been deleted',
+          description: 'Thanks for deleting your review.',
+        })
+      }
+    } catch (error) {
+      console.error("Can't modify review:", error)
     } finally {
       setReviewLoading(false)
     }
@@ -167,6 +276,20 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
       } else {
         setReviewsAverageRating(0)
         setReviewsCount(0)
+      }
+
+      const response2 = await fetch(
+        `${HOST_URL}/api/reviews/${id}}`
+      )
+
+      if (!response2.ok) {
+        throw new Error(`Failed to fetch reviews data`)
+      }
+
+      const { data: reviews }: ApiResponse<Review[]> = await response.json()
+
+      if (reviews) {
+        setReviews(reviews)
       }
     } catch (error) {
       console.error("Can't update review data:", error)
@@ -670,8 +793,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       />
                     </Flex>
                   </Flex>
-                  <ReviewsTable reviews={ssr.reviews} />
-                  {ssr.reviews.length == 0 && (
+                  <ReviewsTable reviews={reviews} onReviewDelete={handleReviewDelete} onReviewUpdate={handleReviewUpdate} />
+                  {reviews.length == 0 && (
                     <Flex
                       direction="column"
                       align="center"
