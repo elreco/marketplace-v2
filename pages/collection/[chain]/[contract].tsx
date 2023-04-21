@@ -52,6 +52,11 @@ import { Address, useAccount } from 'wagmi'
 import titleCase from 'utils/titleCase'
 import Link from 'next/link'
 import Img from 'components/primitives/Img'
+import { ApiResponse, Review, ReviewInsights } from 'types'
+import WriteReview from 'components/buttons/WriteReview'
+import { ToastContext } from 'context/ToastContextProvider'
+import { ReviewsTable } from 'components/reviews/ReviewsTable'
+import { SortReviews } from 'components/reviews/SortReviews'
 import Sweep from 'components/buttons/Sweep'
 
 type ActivityTypes = Exclude<
