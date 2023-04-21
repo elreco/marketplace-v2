@@ -161,11 +161,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
             }}
           ></Box>
         </Flex>
-        {(isFetchingPage || isValidating) && (
-          <Flex align="center" justify="center" css={{ py: '$4' }}>
-            <LoadingSpinner />
-          </Flex>
-        )}
       </Box>
     </Layout>
   )
