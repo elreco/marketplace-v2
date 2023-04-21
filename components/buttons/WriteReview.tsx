@@ -11,7 +11,7 @@ import { Review } from 'types'
 type Props = {
   buttonCss?: CSS
   buttonProps?: ComponentProps<typeof Button>
-  onReviewSubmit?: (review: Pick<Review, "rating" | "comment">) => void
+  onReviewSubmit?: (review: Pick<Review, 'rating' | 'comment'>) => void
   isLoading?: boolean
 }
 
@@ -94,8 +94,8 @@ const WriteReview: FC<Props> = ({
   return (
     <RegularModal title="Write a review" isOpen={isOpen} trigger={trigger}>
       <Text>
-        Add a rating for the collection by selecting a score from 1 to 5,
-        with 1 being the lowest and 5 being the highest.
+        Add a rating for the collection by selecting a score from 1 to 5, with 1
+        being the lowest and 5 being the highest.
       </Text>
       <form onSubmit={handleSave}>
         <Flex

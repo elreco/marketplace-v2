@@ -22,19 +22,20 @@ async function getReviewsByCollection(
   }
 }
 
-async function updateReview(reviewId: string, updatedReview: Partial<Review>): Promise<Review | null> {
+async function updateReview(
+  reviewId: string,
+  updatedReview: Partial<Review>
+): Promise<Review | null> {
+  const { data, error } = await supabaseClient
+    .from('reviews')
+    .update(updatedReview)
+    .eq('id', reviewId)
+    .select()
+  if (error) {
+    throw error
+  }
 
-    const { data, error } = await supabaseClient
-      .from('reviews')
-      .update(updatedReview)
-      .eq('id', reviewId)
-      .select()
-    if (error) {
-      throw error
-    }
-
-    return data[0] as Review
-  
+  return data[0] as Review
 }
 
 async function deleteReview(reviewId: string): Promise<boolean> {
@@ -61,7 +62,7 @@ export default async function handler(
 ) {
   const { query, method } = req
   const { collection_id, id: review_id } = query
-  
+
   if (method === 'GET') {
     if (collection_id && typeof collection_id === 'string') {
       const data = await getReviewsByCollection(collection_id)
@@ -71,7 +72,7 @@ export default async function handler(
   } else if (method === 'PUT') {
     if (review_id && typeof review_id === 'string') {
       const updatedReviewData: Partial<Review> = req.body
-      
+
       const updatedReview = await updateReview(review_id, updatedReviewData)
       res.status(updatedReview ? 200 : 400).json({ data: updatedReview })
       return

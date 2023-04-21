@@ -92,12 +92,11 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
-  const handleReviewSubmit = async (review: Pick<Review, "rating" | "comment">) => {
+  const handleReviewSubmit = async (
+    review: Pick<Review, 'rating' | 'comment'>
+  ) => {
     setReviewLoading(true)
-    const {
-      rating,
-      comment
-    } = review
+    const { rating, comment } = review
     try {
       if (!address || !id) {
         return
@@ -147,13 +146,11 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     }
   }
 
-  const handleReviewUpdate = async (review: Pick<Review, "id" | "rating" | "comment">) => {
+  const handleReviewUpdate = async (
+    review: Pick<Review, 'id' | 'rating' | 'comment'>
+  ) => {
     setReviewLoading(true)
-    const {
-      id: reviewId,
-      rating,
-      comment
-    } = review
+    const { id: reviewId, rating, comment } = review
     try {
       if (!address || !id) {
         return
@@ -180,16 +177,16 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
           description: 'We cannot modify your review.',
         })
       } else {
-        const {data: newData} = await response.json() as Review
+        const { data: newData } = (await response.json()) as ApiResponse<Review>
         const index = reviews.findIndex((r) => r.id === reviewId)
-        const updatedReviews = [...reviews];
+        const updatedReviews = [...reviews]
         if (index > -1) {
           updatedReviews[index] = {
             ...updatedReviews[index],
             ...newData,
-          };
+          }
 
-          setReviews(updatedReviews);
+          setReviews(updatedReviews)
         }
         await updateReviewsData()
 
@@ -205,11 +202,9 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     }
   }
 
-  const handleReviewDelete = async (review: Pick<Review, "id">) => {
+  const handleReviewDelete = async (review: Pick<Review, 'id'>) => {
     setReviewLoading(true)
-    const {
-      id: reviewId
-    } = review
+    const { id: reviewId } = review
     try {
       if (!address || !id) {
         return
@@ -219,7 +214,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
       })
 
       if (!response.ok) {
@@ -229,7 +224,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         })
       } else {
         const index = reviews.findIndex((r) => r.id === reviewId)
-        const updatedReviews = [...reviews];
+        const updatedReviews = [...reviews]
         if (index > -1) {
           updatedReviews.splice(index, 1)
           setReviews(updatedReviews)
@@ -278,9 +273,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         setReviewsCount(0)
       }
 
-      const response2 = await fetch(
-        `${HOST_URL}/api/reviews/${id}}`
-      )
+      const response2 = await fetch(`${HOST_URL}/api/reviews/${id}}`)
 
       if (!response2.ok) {
         throw new Error(`Failed to fetch reviews data`)
@@ -793,7 +786,11 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       />
                     </Flex>
                   </Flex>
-                  <ReviewsTable reviews={reviews} onReviewDelete={handleReviewDelete} onReviewUpdate={handleReviewUpdate} />
+                  <ReviewsTable
+                    reviews={reviews}
+                    onReviewDelete={handleReviewDelete}
+                    onReviewUpdate={handleReviewUpdate}
+                  />
                   {reviews.length == 0 && (
                     <Flex
                       direction="column"

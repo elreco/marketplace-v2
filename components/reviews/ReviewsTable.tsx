@@ -23,18 +23,29 @@ import { RegularModal } from 'components/common/RegularModal'
 
 type Props = {
   reviews: Review[]
-  onReviewUpdate?: (review: Pick<Review, "id" | "rating" | "comment">) => void
-  onReviewDelete?: (rating: Pick<Review, "id">) => void
+  onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
+  onReviewDelete?: (rating: Pick<Review, 'id'>) => void
 }
 const mobileTemplateColumns = '1fr 2fr 1fr'
 const desktopTemplateColumns = '.8fr 1.2fr repeat(2, 0.8fr)'
 
-export const ReviewsTable: FC<Props> = ({ reviews, onReviewUpdate, onReviewDelete }) => {
+export const ReviewsTable: FC<Props> = ({
+  reviews,
+  onReviewUpdate,
+  onReviewDelete,
+}) => {
   return (
     <Flex direction="column" css={{ width: '100%', pb: '$2' }}>
       <TableHeading />
       {reviews.map((review, i) => {
-        return <ReviewTableRow key={`${review?.id}-${i}`} review={review} onReviewUpdate={onReviewUpdate}  onReviewDelete={onReviewDelete}/>
+        return (
+          <ReviewTableRow
+            key={`${review?.id}-${i}`}
+            review={review}
+            onReviewUpdate={onReviewUpdate}
+            onReviewDelete={onReviewDelete}
+          />
+        )
       })}
     </Flex>
   )
@@ -42,11 +53,15 @@ export const ReviewsTable: FC<Props> = ({ reviews, onReviewUpdate, onReviewDelet
 
 type ReviewTableRowProps = {
   review: Review
-  onReviewUpdate?: (review: Pick<Review, "id" | "rating" | "comment">) => void
-  onReviewDelete?: (rating: Pick<Review, "id">) => void
+  onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
+  onReviewDelete?: (rating: Pick<Review, 'id'>) => void
 }
 
-const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onReviewDelete }) => {
+const ReviewTableRow: FC<ReviewTableRowProps> = ({
+  review,
+  onReviewUpdate,
+  onReviewDelete,
+}) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
 
   const [rating, setRating] = useState(0)
@@ -61,7 +76,7 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onRev
     e.preventDefault()
 
     if (onReviewUpdate) {
-      onReviewUpdate({id, rating, comment})
+      onReviewUpdate({ id, rating, comment })
     }
 
     setOpen(false)
@@ -72,9 +87,8 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onRev
   }
 
   const handleDelete = (id: string | undefined) => {
-
     if (onReviewDelete) {
-      onReviewDelete({id })
+      onReviewDelete({ id })
     }
 
     setOpen(false)
@@ -119,11 +133,7 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onRev
               rel="noopener noreferrer"
               onClick={() => selectReview(review)}
             >
-              <FontAwesomeIcon
-                icon={faEdit}
-                width={12}
-                height={15}
-              />
+              <FontAwesomeIcon icon={faEdit} width={12} height={15} />
             </Anchor>
           </Flex>
         </TableCell>
@@ -134,10 +144,14 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onRev
           <Text style="subtitle2">{useTimeSince(review.created_at)}</Text>
         </TableCell>
       </TableRow>
-      <RegularModal title="Update your review" isOpen={isOpen} trigger={undefined}>
+      <RegularModal
+        title="Update your review"
+        isOpen={isOpen}
+        trigger={undefined}
+      >
         <Text>
-          Modify your rating for the collection by selecting a score from 1 to 5,
-          with 1 being the lowest and 5 being the highest.
+          Modify your rating for the collection by selecting a score from 1 to
+          5, with 1 being the lowest and 5 being the highest.
         </Text>
         <form onSubmit={(e) => handleSave(e, review.id)}>
           <Flex
@@ -168,7 +182,9 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({ review, onReviewUpdate, onRev
             </Box>
           </Flex>
           <Flex justify="end" css={{ marginTop: '20px', gap: '$3' }}>
-            <Button color="secondary" onClick={() => handleDelete(review.id)}>Delete review</Button>
+            <Button color="secondary" onClick={() => handleDelete(review.id)}>
+              Delete review
+            </Button>
             <Button type="submit">Save</Button>
           </Flex>
         </form>
