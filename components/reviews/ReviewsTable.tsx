@@ -20,6 +20,7 @@ import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import { RegularModal } from 'components/common/RegularModal'
+import { useAccount } from 'wagmi'
 
 type Props = {
   reviews: Review[]
@@ -63,7 +64,7 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
   onReviewDelete,
 }) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
-
+  const { address } = useAccount()
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [isOpen, setOpen] = useState(false)
@@ -127,14 +128,14 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
         <TableCell>
           <Flex align="center" css={{ gap: '$2' }}>
             <Text style="subtitle2">{review.comment}</Text>
-            <Anchor
+            {address === review.user_id && <Anchor
               color="primary"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => selectReview(review)}
             >
               <FontAwesomeIcon icon={faEdit} width={12} height={15} />
-            </Anchor>
+            </Anchor>}
           </Flex>
         </TableCell>
         <TableCell>
