@@ -252,7 +252,14 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     try {
       const ids = [id]
       const response = await fetch(
-        `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
+        `${HOST_URL}/api/reviews/insights`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(ids),
+        }
       )
 
       if (!response.ok) {
@@ -910,10 +917,16 @@ export const getStaticProps: GetStaticProps<{
   )
 
   const ids = [id]
-  const reviewInsightsPromise = fetch(
-    `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
+  const reviewInsightsPromise = await fetch(
+    `${HOST_URL}/api/reviews/insights`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(ids),
+    }
   )
-
   const reviewsPromise = fetch(`${HOST_URL}/api/reviews?collection_id=${id}`)
 
   const promises = await Promise.allSettled([

@@ -37,28 +37,26 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse<ReviewInsights[]>>
 ) {
-  const { query } = req
-  const { collection_ids } = query
+  const { body: collection_ids } = req
+  console.log(collection_ids)
   try {
-    if (collection_ids && typeof collection_ids === 'string') {
-      const collectionIdsArray = JSON.parse(collection_ids)
+    const collectionIdsArray = collection_ids
 
-      if (
-        Array.isArray(collectionIdsArray) &&
-        collectionIdsArray.every((id) => typeof id === 'string')
-      ) {
-        const ids = collectionIdsArray.map(async (collection_id) => {
-          const data = await getReviewsByCollection(collection_id)
-          const count = data.length
-          const averageRating = calculateAverageRating(data)
-          const formattedRating = parseFloat(averageRating.toFixed(2))
-          return { collection_id, count, average_rating: formattedRating }
-        })
-        const results = await Promise.all(ids)
+    if (
+      Array.isArray(collectionIdsArray) &&
+      collectionIdsArray.every((id) => typeof id === 'string')
+    ) {
+      const ids = collectionIdsArray.map(async (collection_id) => {
+        const data = await getReviewsByCollection(collection_id)
+        const count = data.length
+        const averageRating = calculateAverageRating(data)
+        const formattedRating = parseFloat(averageRating.toFixed(2))
+        return { collection_id, count, average_rating: formattedRating }
+      })
+      const results = await Promise.all(ids)
 
-        res.status(200).json({ data: results })
-        return
-      }
+      res.status(200).json({ data: results })
+      return
     }
   } catch (error) {
     console.error('Error processing collection_ids:', error)

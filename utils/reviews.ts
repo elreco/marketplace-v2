@@ -12,8 +12,16 @@ export async function updateCollectionsWithReviews(
     const ids = collections.map((collection) => collection.id)
 
     const response = await fetch(
-      `${HOST_URL}/api/reviews/insights?collection_ids=${JSON.stringify(ids)}`
+      `${HOST_URL}/api/reviews/insights`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids),
+      }
     )
+    
 
     if (!response.ok) {
       throw new Error('Failed to fetch review insights for collections')
