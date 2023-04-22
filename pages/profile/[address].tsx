@@ -42,6 +42,7 @@ import { Address, useAccount } from 'wagmi'
 import ChainToggle from 'components/common/ChainToggle'
 import { ChainContext } from 'context/ChainContextProvider'
 import { ApiResponse, Review } from 'types'
+import { ReviewsTable } from 'components/reviews/ReviewsTable'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -192,6 +193,7 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
           <TabsList>
             <TabsTrigger value="items">Items</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
 
           <TabsContent value="items">
@@ -371,6 +373,34 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
               </Box>
             </Flex>
           </TabsContent>
+          <TabsContent value="reviews">
+            <Flex
+              css={{
+                position: 'relative',
+              }}
+            >
+              <Box
+                css={{
+                  flex: 1,
+                  width: '100%',
+                }}
+              >
+                <ReviewsTable reviews={ssr.reviews} isFromUserProfile={true} />
+                {ssr.reviews.length == 0 && (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    css={{ py: '$6', gap: '$4' }}
+                  >
+                    <Text css={{ color: '$gray11' }}>
+                      <FontAwesomeIcon icon={faMagnifyingGlass} size="2xl" />
+                    </Text>
+                    <Text css={{ color: '$gray11' }}>No reviews found</Text>
+                  </Flex>
+                )}
+              </Box>
+            </Flex>
+          </TabsContent>
         </Tabs.Root>
       </Flex>
     </Layout>
@@ -455,7 +485,6 @@ export const getStaticProps: GetStaticProps<{
     headers
   )
   const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
-  
 
   promises.push(tokensPromise)
   promises.push(collectionsPromise)
@@ -465,18 +494,33 @@ export const getStaticProps: GetStaticProps<{
   const tokens: Record<number, any> = {}
   responses.forEach((response) => {
     if (response.status === 'fulfilled') {
-        const url = new URL(response.value.response.url)
-        if (url.pathname.includes('collections')) {
-          collections[DefaultChain.id] = response.value.data
-        } else if (url.pathname.includes('tokens')) {
-          tokens[DefaultChain.id] = response.value.data
-        }
+      const url = new URL(response.value.response.url)
+      if (url.pathname.includes('collections')) {
+        collections[DefaultChain.id] = response.value.data
+      } else if (url.pathname.includes('tokens')) {
+        tokens[DefaultChain.id] = response.value.data
+      }
     }
   })
 
-  const reviewsPromise = await fetch(`${HOST_URL}/api/reviews?user_id=${address}`) as ApiResponse<Review[]>
-  const { data } = await reviewsPromise.json()
+  const reviewsPromise = await fetch(
+    `${HOST_URL}/api/reviews?user_id=${address}`
+  )
+  const { data } = (await reviewsPromise.json()) as ApiResponse<Review[]>
   const reviews: Review[] = data
+  const fetchCollectionPromises = reviews.map((review: Review) => {
+    return fetcher(
+      `${DefaultChain.reservoirBaseUrl}/collections/v5`,
+      {
+        id: review.collection_id,
+      },
+      headers
+    ).then(({ data }) => {
+      review.collection = data.collections[0]
+    })
+  })
+
+  await Promise.all(fetchCollectionPromises)
 
   return {
     props: { ssr: { tokens, collections, reviews }, address, ensName },

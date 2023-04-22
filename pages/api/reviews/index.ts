@@ -10,6 +10,7 @@ async function getReviewsByCollection(
       .from('reviews')
       .select('*')
       .eq('collection_id', collection_id)
+      .order('created_at', { ascending: false })
 
     if (error) {
       throw error
@@ -22,15 +23,13 @@ async function getReviewsByCollection(
   }
 }
 
-async function getReviewsByUser(
-  user_id: string
-): Promise<Review[]> {
+async function getReviewsByUser(user_id: string): Promise<Review[]> {
   try {
     const { data, error } = await supabaseClient
       .from('reviews')
       .select('*')
       .eq('user_id', user_id)
-    console.log("data", data)
+      .order('created_at', { ascending: false })
     if (error) {
       throw error
     }

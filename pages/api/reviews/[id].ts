@@ -2,26 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiResponse, Review } from '../../../types'
 import { supabaseClient } from '../../../utils/supabase'
 
-async function getReviewsByCollection(
-  collection_id: string
-): Promise<Review[]> {
-  try {
-    const { data, error } = await supabaseClient
-      .from('reviews')
-      .select('*')
-      .eq('collection_id', collection_id)
-
-    if (error) {
-      throw error
-    }
-
-    return data as Review[]
-  } catch (error) {
-    console.error('Erreur lors de la récupération des avis:', error)
-    return []
-  }
-}
-
 async function updateReview(
   reviewId: string,
   updatedReview: Partial<Review>
@@ -61,15 +41,9 @@ export default async function handler(
   res: NextApiResponse<ApiResponse<Review[] | Review | null | boolean>>
 ) {
   const { query, method } = req
-  const { collection_id, id: review_id } = query
+  const { id: review_id } = query
 
-  if (method === 'GET') {
-    if (collection_id && typeof collection_id === 'string') {
-      const data = await getReviewsByCollection(collection_id)
-      res.status(200).json({ data })
-      return
-    }
-  } else if (method === 'PUT') {
+  if (method === 'PUT') {
     if (review_id && typeof review_id === 'string') {
       const updatedReviewData: Partial<Review> = req.body
 

@@ -38,7 +38,6 @@ export default async function handler(
   res: NextApiResponse<ApiResponse<ReviewInsights[]>>
 ) {
   const { body: collection_ids } = req
-  console.log(collection_ids)
   try {
     const collectionIdsArray = collection_ids
 

@@ -8,6 +8,7 @@ export interface Review {
   comment: string
   created_at?: string
   updated_at?: string
+  collection?: ExtendedCollectionItem
 }
 
 export interface ReviewInsights {

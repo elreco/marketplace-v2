@@ -251,16 +251,13 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const updateReviewsData = async () => {
     try {
       const ids = [id]
-      const response = await fetch(
-        `${HOST_URL}/api/reviews/insights`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(ids),
-        }
-      )
+      const response = await fetch(`${HOST_URL}/api/reviews/insights`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids),
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to fetch reviews data`)
@@ -789,10 +786,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
             <TabsContent value="reviews">
               <Flex
                 css={{
-                  gap: attributeFiltersOpen ? '$5' : '',
                   position: 'relative',
                 }}
-                ref={scrollRef}
               >
                 <Box
                   css={{

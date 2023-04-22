@@ -12,7 +12,7 @@ import {
   Input,
 } from '../primitives'
 import Link from 'next/link'
-import { useENSResolver, useTimeSince } from 'hooks'
+import { useENSResolver, useMarketplaceChain, useTimeSince } from 'hooks'
 import { Review } from 'types'
 import { NAVBAR_HEIGHT } from 'components/navbar'
 import RatingStars from 'components/RatingStars'
@@ -21,9 +21,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import { RegularModal } from 'components/common/RegularModal'
 import { useAccount } from 'wagmi'
+import { OpenSeaVerified } from 'components/common/OpenSeaVerified'
+import Img from 'components/primitives/Img'
 
 type Props = {
   reviews: Review[]
+  isFromUserProfile?: boolean
   onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
   onReviewDelete?: (rating: Pick<Review, 'id'>) => void
 }
@@ -32,12 +35,13 @@ const desktopTemplateColumns = '.8fr 1.2fr repeat(2, 0.8fr)'
 
 export const ReviewsTable: FC<Props> = ({
   reviews,
+  isFromUserProfile = false,
   onReviewUpdate,
   onReviewDelete,
 }) => {
   return (
     <Flex direction="column" css={{ width: '100%', pb: '$2' }}>
-      <TableHeading />
+      <TableHeading isFromUserProfile={isFromUserProfile} />
       {reviews.map((review, i) => {
         return (
           <ReviewTableRow
@@ -45,6 +49,7 @@ export const ReviewsTable: FC<Props> = ({
             review={review}
             onReviewUpdate={onReviewUpdate}
             onReviewDelete={onReviewDelete}
+            isFromUserProfile={isFromUserProfile}
           />
         )
       })}
@@ -56,18 +61,21 @@ type ReviewTableRowProps = {
   review: Review
   onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
   onReviewDelete?: (rating: Pick<Review, 'id'>) => void
+  isFromUserProfile: boolean
 }
 
 const ReviewTableRow: FC<ReviewTableRowProps> = ({
   review,
   onReviewUpdate,
   onReviewDelete,
+  isFromUserProfile,
 }) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
   const { address } = useAccount()
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [isOpen, setOpen] = useState(false)
+  const { routePrefix } = useMarketplaceChain()
 
   const handleRatingChange = (newRating: number) => {
     setRating(newRating)
@@ -104,7 +112,6 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
     setComment(review.comment)
     setOpen(true)
   }
-
   return (
     <>
       <TableRow
@@ -117,12 +124,65 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
       >
         <TableCell css={{ minWidth: 0 }}>
           <Flex align="center">
-            <Jazzicon diameter={16} seed={jsNumberForAddress(review.user_id)} />
-            <Link href={`/profile/${review.user_id}`} legacyBehavior={true}>
-              <Anchor color="primary" weight="normal" css={{ ml: '$1' }}>
-                {useENSResolver(review.user_id).displayName}
-              </Anchor>
-            </Link>
+            {!isFromUserProfile ? (
+              <>
+                <Jazzicon
+                  diameter={16}
+                  seed={jsNumberForAddress(review.user_id)}
+                />
+                <Link href={`/profile/${review.user_id}`} legacyBehavior={true}>
+                  <Anchor color="primary" weight="normal" css={{ ml: '$1' }}>
+                    {useENSResolver(review.user_id).displayName}
+                  </Anchor>
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={`/collection/${routePrefix}/${review.collection?.id}`}
+                style={{ display: 'inline-block', width: '100%', minWidth: 0 }}
+              >
+                <Flex
+                  align="center"
+                  css={{
+                    gap: '$2',
+                    cursor: 'pointer',
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    width: '100$',
+                  }}
+                >
+                  <Img
+                    src={review.collection?.image as string}
+                    css={{
+                      borderRadius: 8,
+                      width: 56,
+                      height: 56,
+                      objectFit: 'cover',
+                    }}
+                    alt="Collection Image"
+                    width={56}
+                    height={56}
+                    unoptimized
+                  />
+
+                  <Text
+                    css={{
+                      display: 'inline-block',
+                      minWidth: 0,
+                    }}
+                    style="subtitle1"
+                    ellipsify
+                  >
+                    {review.collection?.name}
+                  </Text>
+                  <OpenSeaVerified
+                    openseaVerificationStatus={
+                      review.collection?.openseaVerificationStatus
+                    }
+                  />
+                </Flex>
+              </Link>
+            )}
           </Flex>
         </TableCell>
         <TableCell>
@@ -196,7 +256,11 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
   )
 }
 
-const TableHeading = () => (
+const TableHeading = ({
+  isFromUserProfile,
+}: {
+  isFromUserProfile: boolean
+}) => (
   <HeaderRow
     css={{
       gridTemplateColumns: mobileTemplateColumns,
@@ -209,11 +273,19 @@ const TableHeading = () => (
       },
     }}
   >
-    <TableCell>
-      <Text style="subtitle3" color="subtle">
-        User
-      </Text>
-    </TableCell>
+    {!isFromUserProfile ? (
+      <TableCell>
+        <Text style="subtitle3" color="subtle">
+          User
+        </Text>
+      </TableCell>
+    ) : (
+      <TableCell>
+        <Text style="subtitle3" color="subtle">
+          Collection
+        </Text>
+      </TableCell>
+    )}
     <TableCell>
       <Text style="subtitle3" color="subtle">
         Review

@@ -11,17 +11,13 @@ export async function updateCollectionsWithReviews(
     const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
     const ids = collections.map((collection) => collection.id)
 
-    const response = await fetch(
-      `${HOST_URL}/api/reviews/insights`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ids),
-      }
-    )
-    
+    const response = await fetch(`${HOST_URL}/api/reviews/insights`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(ids),
+    })
 
     if (!response.ok) {
       throw new Error('Failed to fetch review insights for collections')
