@@ -27,6 +27,7 @@ import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsT
 import { ChainContext } from 'context/ChainContextProvider'
 import { ChainCollections } from 'types'
 import { updateCollectionsWithReviews } from 'utils/reviews'
+import LoadingSpinner from 'components/common/LoadingSpinner'
 
 const CollectionRankingsTableWrapper = lazy(
   () => import('components/rankings/CollectionRankingsTableWrapper')
@@ -141,6 +142,11 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
                 volumeKey={volumeKey}
               />
             </Suspense>
+          )}
+          {(isValidating) && (
+            <Flex align="center" justify="center" css={{ py: '$4' }}>
+              <LoadingSpinner />
+            </Flex>
           )}
           <Box css={{ alignSelf: 'center' }}>
             <Link href="/collection-rankings">

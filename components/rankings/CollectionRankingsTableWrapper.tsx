@@ -22,14 +22,8 @@ export const CollectionRankingsTableWrapper: React.FC<
   const [collections, setCollections] = useState<ExtendedCollectionItem[]>([])
   const [isLoading, setLoading] = useState(true)
 
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
-
   useEffect(() => {
     setLoading(true)
-
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-    }
 
     const updateCollections = async () => {
       const updatedCollectionsResults = await updateCollectionsWithReviews(data)
@@ -39,15 +33,7 @@ export const CollectionRankingsTableWrapper: React.FC<
       }
     }
 
-    const newTimeoutId = setTimeout(() => {
-      updateCollections()
-    }, 700)
-
-    setTimeoutId(newTimeoutId)
-
-    return () => {
-      clearTimeout(newTimeoutId)
-    }
+    updateCollections()
   }, [data])
 
   return (

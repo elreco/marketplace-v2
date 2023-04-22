@@ -39,15 +39,6 @@ export const CollectionRankingsTable: FC<Props> = ({
 
   return (
     <>
-      {loading && collections.length === 0 && 
-        <Flex
-        css={{ py: '$6', gap: '$4', width: '100%' }}
-        justify="center"
-        align="center"
-      >
-        <LoadingSpinner />
-      </Flex>
-      }
       {!loading && collections.length === 0 ? (
         <Flex
           direction="column"
