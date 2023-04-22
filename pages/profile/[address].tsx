@@ -41,6 +41,7 @@ import CopyText from 'components/common/CopyText'
 import { Address, useAccount } from 'wagmi'
 import ChainToggle from 'components/common/ChainToggle'
 import { ChainContext } from 'context/ChainContextProvider'
+import { ApiResponse, Review } from 'types'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -392,6 +393,7 @@ export const getStaticProps: GetStaticProps<{
   ssr: {
     tokens: Record<number, UserTokensSchema>
     collections: Record<number, UserCollectionsSchema>
+    reviews: Review[]
   }
   address: string | undefined
   ensName: string | null
@@ -435,7 +437,7 @@ export const getStaticProps: GetStaticProps<{
     collectionsQuery.community = DefaultChain.community
   }
 
-  const promises: ReturnType<typeof fetcher>[] = []
+  const promises: any[] = []
 
   const headers = {
     headers: {
@@ -452,6 +454,9 @@ export const getStaticProps: GetStaticProps<{
     collectionsQuery,
     headers
   )
+  const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
+  
+
   promises.push(tokensPromise)
   promises.push(collectionsPromise)
 
@@ -460,17 +465,21 @@ export const getStaticProps: GetStaticProps<{
   const tokens: Record<number, any> = {}
   responses.forEach((response) => {
     if (response.status === 'fulfilled') {
-      const url = new URL(response.value.response.url)
-      if (url.pathname.includes('collections')) {
-        collections[DefaultChain.id] = response.value.data
-      } else if (url.pathname.includes('tokens')) {
-        tokens[DefaultChain.id] = response.value.data
-      }
+        const url = new URL(response.value.response.url)
+        if (url.pathname.includes('collections')) {
+          collections[DefaultChain.id] = response.value.data
+        } else if (url.pathname.includes('tokens')) {
+          tokens[DefaultChain.id] = response.value.data
+        }
     }
   })
 
+  const reviewsPromise = await fetch(`${HOST_URL}/api/reviews?user_id=${address}`) as ApiResponse<Review[]>
+  const { data } = await reviewsPromise.json()
+  const reviews: Review[] = data
+
   return {
-    props: { ssr: { tokens, collections }, address, ensName },
+    props: { ssr: { tokens, collections, reviews }, address, ensName },
     revalidate: 5,
   }
 }

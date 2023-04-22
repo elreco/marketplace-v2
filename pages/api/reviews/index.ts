@@ -22,6 +22,26 @@ async function getReviewsByCollection(
   }
 }
 
+async function getReviewsByUser(
+  user_id: string
+): Promise<Review[]> {
+  try {
+    const { data, error } = await supabaseClient
+      .from('reviews')
+      .select('*')
+      .eq('user_id', user_id)
+    console.log("data", data)
+    if (error) {
+      throw error
+    }
+
+    return data as Review[]
+  } catch (error) {
+    console.error('Erreur lors de la récupération des avis:', error)
+    return []
+  }
+}
+
 async function reviewExists(
   user_id: string,
   collection_id: string
@@ -90,10 +110,16 @@ export default async function handler(
   }
 
   const { query } = req
-  const { collection_id } = query
+  const { collection_id, user_id } = query
 
   if (collection_id && typeof collection_id === 'string') {
     const data = await getReviewsByCollection(collection_id)
+    res.status(200).json({ data })
+    return
+  }
+
+  if (user_id && typeof user_id === 'string') {
+    const data = await getReviewsByUser(user_id)
     res.status(200).json({ data })
     return
   }

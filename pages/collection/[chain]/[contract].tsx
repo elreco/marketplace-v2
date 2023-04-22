@@ -966,9 +966,6 @@ export const getStaticProps: GetStaticProps<{
 
   const { data: reviews }: ApiResponse<Props['ssr']['reviews']> =
     promises?.[3].status === 'fulfilled' && (await promises[3].value.json())
-  reviews.forEach((review) => {
-    fetcher(`${reservoirBaseUrl}/users/${review.user_id}/tokens/v6`, headers)
-  })
 
   if (
     collection &&
