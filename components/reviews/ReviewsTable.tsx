@@ -128,14 +128,16 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
         <TableCell>
           <Flex align="center" css={{ gap: '$2' }}>
             <Text style="subtitle2">{review.comment}</Text>
-            {address === review.user_id && <Anchor
-              color="primary"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => selectReview(review)}
-            >
-              <FontAwesomeIcon icon={faEdit} width={12} height={15} />
-            </Anchor>}
+            {address === review.user_id && (
+              <Anchor
+                color="primary"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => selectReview(review)}
+              >
+                <FontAwesomeIcon icon={faEdit} width={12} height={15} />
+              </Anchor>
+            )}
           </Flex>
         </TableCell>
         <TableCell>
