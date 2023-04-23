@@ -211,7 +211,10 @@ export const getStaticProps: GetStaticProps<{
         )
     }
   })
-
+  const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
+  const fetchTopRatedCollections = await fetch(`${HOST_URL}/api/reviews/topRatedCollections`)
+  const data = await fetchTopRatedCollections.json()
+  console.log(data)
   return {
     props: { ssr: { collections } },
     revalidate: 5,
