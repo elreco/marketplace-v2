@@ -43,6 +43,7 @@ import ChainToggle from 'components/common/ChainToggle'
 import { ChainContext } from 'context/ChainContextProvider'
 import { ApiResponse, Review } from 'types'
 import { ReviewsTable } from 'components/reviews/ReviewsTable'
+import { ToastContext } from 'context/ToastContextProvider'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
@@ -55,6 +56,8 @@ type ActivityTypes = Exclude<
   string
 >
 
+const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
+
 const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
   const {
     avatar: ensAvatar,
@@ -63,7 +66,7 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
   } = useENSResolver(address)
   ensName = resolvedEnsName ? resolvedEnsName : ensName
   const account = useAccount()
-
+  const { addToast } = useContext(ToastContext)
   const [tokenFiltersOpen, setTokenFiltersOpen] = useState(true)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
   const [filterCollection, setFilterCollection] = useState<string | undefined>(
@@ -76,6 +79,7 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
   const isMounted = useMounted()
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
   const marketplaceChain = useMarketplaceChain()
+  const [reviews, setReviews] = useState<Review[]>(ssr.reviews)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -129,6 +133,123 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
     useUserCollections(address, collectionQuery, {
       fallbackData: filterCollection ? undefined : ssrCollections,
     })
+
+    const handleReviewUpdate = async (
+      review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>
+    ) => {
+      const { id: reviewId, rating, comment, collection_id } = review
+      try {
+        if (!address) {
+          return
+        }
+  
+        const payload: Review = {
+          collection_id: collection_id,
+          rating,
+          comment,
+          user_id: address,
+        }
+  
+        const response = await fetch(`${HOST_URL}/api/reviews/${reviewId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        })
+  
+        if (!response.ok) {
+          addToast?.({
+            title: 'Review not modified',
+            description: 'We cannot modify your review.',
+          })
+        } else {
+          const { data: newData } = (await response.json()) as ApiResponse<Review>
+          const index = reviews.findIndex((r) => r.id === reviewId)
+          const updatedReviews = [...reviews]
+          if (index > -1) {
+            updatedReviews[index] = {
+              ...updatedReviews[index],
+              ...newData,
+            }
+  
+            setReviews(updatedReviews)
+          }
+          updateReviewsData()
+  
+          addToast?.({
+            title: 'Your review has been modified',
+            description: 'Thanks for modifying your review.',
+          })
+        }
+      } catch (error) {
+        console.error("Can't modify review:", error)
+      }
+    }
+  
+    const handleReviewDelete = async (review: Pick<Review, 'id'>) => {
+      const { id: reviewId } = review
+      try {
+        if (!address) {
+          return
+        }
+  
+        const response = await fetch(`${HOST_URL}/api/reviews/${reviewId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+  
+        if (!response.ok) {
+          addToast?.({
+            title: 'Review not deleted',
+            description: 'We cannot delete your review.',
+          })
+        } else {
+          const index = reviews.findIndex((r) => r.id === reviewId)
+          const updatedReviews = [...reviews]
+          if (index > -1) {
+            updatedReviews.splice(index, 1)
+            setReviews(updatedReviews)
+          }
+          updateReviewsData()
+  
+          addToast?.({
+            title: 'Your review has been deleted',
+            description: 'Thanks for deleting your review.',
+          })
+        }
+      } catch (error) {
+        console.error("Can't delete review:", error)
+      }
+    }
+
+    const updateReviewsData = async () => {
+      try {
+        const fetchReviews = await fetch(`${HOST_URL}/api/reviews?user_id=${address}`);
+    
+        if (!fetchReviews.ok) {
+          throw new Error(`Failed to fetch reviews data`);
+        }
+    
+        const { data: newReviews }: ApiResponse<Review[]> = await fetchReviews.json();
+    
+        if (newReviews) {
+          setReviews(newReviews.map((review) => {
+            const newReview = reviews.find((r) => r.id === review.id)
+            return {
+              ...newReview,
+              ...review,
+              
+            }
+          }));
+        }
+      } catch (error) {
+        console.error("Can't update review data:", error);
+      }
+    };
+    
 
   useEffect(() => {
     const isVisible = !!loadMoreObserver?.isIntersecting
@@ -385,8 +506,8 @@ const IndexPage: NextPage<Props> = ({ address, ssr, ensName }) => {
                   width: '100%',
                 }}
               >
-                <ReviewsTable reviews={ssr.reviews} isFromUserProfile={true} />
-                {ssr.reviews.length == 0 && (
+                <ReviewsTable onReviewUpdate={handleReviewUpdate} onReviewDelete={handleReviewDelete} reviews={reviews} isFromUserProfile={true} />
+                {reviews.length == 0 && (
                   <Flex
                     direction="column"
                     align="center"
@@ -529,3 +650,7 @@ export const getStaticProps: GetStaticProps<{
 }
 
 export default IndexPage
+function addToast(arg0: { title: string; description: string }) {
+  throw new Error('Function not implemented.')
+}
+

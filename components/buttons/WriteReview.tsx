@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Input, Text } from 'components/primitives'
-import { ComponentProps, FC, useEffect, useState } from 'react'
+import { ChangeEvent, ComponentProps, FC, useEffect, useState } from 'react'
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { CSS } from '@stitches/react'
 import { useMarketplaceChain } from 'hooks'
@@ -42,9 +42,15 @@ const WriteReview: FC<Props> = ({
     setRating(newRating)
   }
 
+  const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const currentValue = event.target.value;
+    const cleanedValue = currentValue.replace(/<[^>]*>|[^\w\s]/gi, '');
+    setComment(cleanedValue)
+  }
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-
+    
     if (onReviewSubmit) {
       onReviewSubmit({ rating, comment })
     }
@@ -119,7 +125,7 @@ const WriteReview: FC<Props> = ({
           <Box style={{ width: '100%' }}>
             <Input
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              onChange={handleCommentChange}
               type="text"
               placeholder="Type your review (Optional)"
             />

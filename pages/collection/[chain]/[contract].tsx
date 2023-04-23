@@ -137,7 +137,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         const updatedReviews = [...reviews]
         updatedReviews.push(data)
         setReviews(updatedReviews)
-        await updateReviewsData()
+        updateReviewsData()
 
         addToast?.({
           title: 'Your review has been added',
@@ -193,7 +193,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
           setReviews(updatedReviews)
         }
-        await updateReviewsData()
+        updateReviewsData()
 
         addToast?.({
           title: 'Your review has been modified',
@@ -234,7 +234,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
           updatedReviews.splice(index, 1)
           setReviews(updatedReviews)
         }
-        await updateReviewsData()
+        updateReviewsData()
 
         addToast?.({
           title: 'Your review has been deleted',
@@ -250,53 +250,53 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   const updateReviewsData = async () => {
     try {
-      const ids = [id]
-      const response = await fetch(`${HOST_URL}/api/reviews/insights`, {
+      const ids = [id];
+  
+      const fetchInsights = fetch(`${HOST_URL}/api/reviews/insights`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(ids),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch reviews data`)
+      });
+  
+      const fetchReviews = fetch(`${HOST_URL}/api/reviews?collection_id=${id}`);
+  
+      const [insightsResponse, reviewsResponse] = await Promise.all([fetchInsights, fetchReviews]);
+  
+      if (!insightsResponse.ok || !reviewsResponse.ok) {
+        throw new Error(`Failed to fetch reviews data`);
       }
-
-      const { data }: ApiResponse<ReviewInsights[]> = await response.json()
-      const insightsMap: Record<string, ReviewInsights> = data.reduce(
+  
+      const { data: insightsData }: ApiResponse<ReviewInsights[]> = await insightsResponse.json();
+      const insightsMap: Record<string, ReviewInsights> = insightsData.reduce(
         (acc: Record<string, ReviewInsights>, insight) => {
-          acc[insight.collection_id] = insight
-          return acc
+          acc[insight.collection_id] = insight;
+          return acc;
         },
         {}
-      )
-
-      const insight = insightsMap[String(id)]
-
+      );
+  
+      const insight = insightsMap[String(id)];
+  
       if (insight) {
-        setReviewsAverageRating(insight.average_rating)
-        setReviewsCount(insight.count)
+        setReviewsAverageRating(insight.average_rating);
+        setReviewsCount(insight.count);
       } else {
-        setReviewsAverageRating(0)
-        setReviewsCount(0)
+        setReviewsAverageRating(0);
+        setReviewsCount(0);
       }
-
-      const response2 = await fetch(`${HOST_URL}/api/reviews/${id}}`)
-
-      if (!response2.ok) {
-        throw new Error(`Failed to fetch reviews data`)
-      }
-
-      const { data: reviews }: ApiResponse<Review[]> = await response.json()
-
+  
+      const { data: reviews }: ApiResponse<Review[]> = await reviewsResponse.json();
+  
       if (reviews) {
-        setReviews(reviews)
+        setReviews(reviews);
       }
     } catch (error) {
-      console.error("Can't update review data:", error)
+      console.error("Can't update review data:", error);
     }
-  }
+  };
+  
 
   const scrollToTop = () => {
     let top = (scrollRef.current?.offsetTop || 0) - (NAVBAR_HEIGHT + 16)

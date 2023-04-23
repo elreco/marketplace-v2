@@ -27,8 +27,8 @@ import Img from 'components/primitives/Img'
 type Props = {
   reviews: Review[]
   isFromUserProfile?: boolean
-  onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
-  onReviewDelete?: (rating: Pick<Review, 'id'>) => void
+  onReviewUpdate: (review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>) => void
+  onReviewDelete: (rating: Pick<Review, 'id'>) => void
 }
 const mobileTemplateColumns = '1fr 2fr 1fr'
 const desktopTemplateColumns = '.8fr 1.2fr repeat(2, 0.8fr)'
@@ -59,8 +59,8 @@ export const ReviewsTable: FC<Props> = ({
 
 type ReviewTableRowProps = {
   review: Review
-  onReviewUpdate?: (review: Pick<Review, 'id' | 'rating' | 'comment'>) => void
-  onReviewDelete?: (rating: Pick<Review, 'id'>) => void
+  onReviewUpdate: (review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>) => void
+  onReviewDelete: (rating: Pick<Review, 'id'>) => void
   isFromUserProfile: boolean
 }
 
@@ -81,11 +81,11 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
     setRating(newRating)
   }
 
-  const handleSave = (e: React.FormEvent, id: string | undefined) => {
+  const handleSave = (e: React.FormEvent, review: Review) => {
     e.preventDefault()
 
     if (onReviewUpdate) {
-      onReviewUpdate({ id, rating, comment })
+      onReviewUpdate({ id: review.id, rating, comment, collection_id: review.collection_id })
     }
 
     setOpen(false)
@@ -216,7 +216,7 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
           Modify your rating for the collection by selecting a score from 1 to
           5, with 1 being the lowest and 5 being the highest.
         </Text>
-        <form onSubmit={(e) => handleSave(e, review.id)}>
+        <form onSubmit={(e) => handleSave(e, review)}>
           <Flex
             justify="center"
             align="center"

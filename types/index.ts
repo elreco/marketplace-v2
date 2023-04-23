@@ -3,7 +3,7 @@ import { paths } from '@reservoir0x/reservoir-sdk'
 export interface Review {
   id?: string
   collection_id: string
-  user_id: `0x${string}`
+  user_id: string
   rating: number
   comment: string
   created_at?: string
