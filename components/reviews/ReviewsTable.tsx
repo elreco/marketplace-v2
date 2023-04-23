@@ -27,7 +27,9 @@ import Img from 'components/primitives/Img'
 type Props = {
   reviews: Review[]
   isFromUserProfile?: boolean
-  onReviewUpdate: (review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>) => void
+  onReviewUpdate: (
+    review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>
+  ) => void
   onReviewDelete: (rating: Pick<Review, 'id'>) => void
 }
 const mobileTemplateColumns = '1fr 2fr 1fr'
@@ -59,7 +61,9 @@ export const ReviewsTable: FC<Props> = ({
 
 type ReviewTableRowProps = {
   review: Review
-  onReviewUpdate: (review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>) => void
+  onReviewUpdate: (
+    review: Pick<Review, 'id' | 'rating' | 'comment' | 'collection_id'>
+  ) => void
   onReviewDelete: (rating: Pick<Review, 'id'>) => void
   isFromUserProfile: boolean
 }
@@ -85,7 +89,12 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
     e.preventDefault()
 
     if (onReviewUpdate) {
-      onReviewUpdate({ id: review.id, rating, comment, collection_id: review.collection_id })
+      onReviewUpdate({
+        id: review.id,
+        rating,
+        comment,
+        collection_id: review.collection_id,
+      })
     }
 
     setOpen(false)

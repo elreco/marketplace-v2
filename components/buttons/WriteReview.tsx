@@ -43,14 +43,14 @@ const WriteReview: FC<Props> = ({
   }
 
   const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const currentValue = event.target.value;
-    const cleanedValue = currentValue.replace(/<[^>]*>|[^\w\s]/gi, '');
+    const currentValue = event.target.value
+    const cleanedValue = currentValue.replace(/<[^>]*>|[^\w\s]/gi, '')
     setComment(cleanedValue)
   }
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (onReviewSubmit) {
       onReviewSubmit({ rating, comment })
     }
