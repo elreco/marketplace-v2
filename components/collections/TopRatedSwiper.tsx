@@ -10,6 +10,7 @@ import RatingStars from 'components/RatingStars'
 import { OpenSeaVerified } from 'components/common/OpenSeaVerified'
 import Link from 'next/link'
 import Img from 'components/primitives/Img'
+import { formatNumber } from 'utils/numbers'
 
 type Props = {
   topRatedCollections: TopRatedCollection[]
@@ -119,6 +120,7 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
                 readOnly
                 rating={slide.average_rating}
               ></RatingStars>
+              <Text css={{mt: '$2'}} style="subtitle1">{formatNumber(slide.total_reviews)} reviews</Text>
             </ContentWrapper>
           </SlideInner>
         </SwiperSlide>
