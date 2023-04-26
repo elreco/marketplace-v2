@@ -56,7 +56,9 @@ const WriteReview: FC<Props> = ({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-
+    if (!rating) {
+      return
+    }
     if (onReviewSubmit) {
       onReviewSubmit({ rating, comment })
     }

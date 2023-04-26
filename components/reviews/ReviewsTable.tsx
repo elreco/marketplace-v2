@@ -209,7 +209,12 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
         </TableCell>
         <TableCell>
           <Flex align="center" css={{ gap: '$2' }}>
-            <Text style="subtitle2">{review.comment}</Text>
+            <Text
+              css={{ fontStyle: review.comment ? 'normal' : 'italic' }}
+              style="subtitle2"
+            >
+              {review.comment || 'No review'}
+            </Text>
             {address === review.user_id && (
               <Anchor
                 color="primary"

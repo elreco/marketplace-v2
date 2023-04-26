@@ -16,6 +16,7 @@ import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { TabsList, TabsTrigger, TabsContent } from 'components/primitives/Tab'
+import supportedChains, { DefaultChain } from 'utils/chains'
 import * as Tabs from '@radix-ui/react-tabs'
 import {
   useCollectionActivity,
@@ -33,7 +34,6 @@ import { ActivityFilters } from 'components/common/ActivityFilters'
 import { MobileTokenFilters } from 'components/common/MobileTokenFilters'
 import LoadingCard from 'components/common/LoadingCard'
 import { NAVBAR_HEIGHT } from 'components/navbar'
-import { DefaultChain } from 'utils/chains'
 import { useENSResolver } from 'hooks'
 import { NORMALIZE_ROYALTIES } from 'pages/_app'
 import { Head } from 'components/Head'
@@ -638,8 +638,11 @@ export const getStaticProps: GetStaticProps<{
   const { data } = (await reviewsPromise.json()) as ApiResponse<Review[]>
   const reviews: Review[] = data
   const fetchCollectionPromises = reviews.map((review: Review) => {
+    const chain =
+      supportedChains.find((c) => c.routePrefix === review.chain_slug) ||
+      DefaultChain
     return fetcher(
-      `${DefaultChain.reservoirBaseUrl}/collections/v5`,
+      `${chain.reservoirBaseUrl}/collections/v5`,
       {
         id: review.collection_id,
       },
@@ -658,6 +661,3 @@ export const getStaticProps: GetStaticProps<{
 }
 
 export default IndexPage
-function addToast(arg0: { title: string; description: string }) {
-  throw new Error('Function not implemented.')
-}

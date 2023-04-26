@@ -120,7 +120,10 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
                 readOnly
                 rating={slide.average_rating}
               ></RatingStars>
-              <Text css={{mt: '$2'}} style="subtitle1">{formatNumber(slide.total_reviews)} reviews</Text>
+              <Text css={{ mt: '$2' }} style="subtitle1">
+                {formatNumber(slide.total_reviews)}{' '}
+                {slide.total_reviews > 1 ? 'ratings' : 'rating'}
+              </Text>
             </ContentWrapper>
           </SlideInner>
         </SwiperSlide>

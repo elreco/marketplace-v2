@@ -16,7 +16,7 @@ import { useAccount } from 'wagmi'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
 import fetcher from 'utils/fetcher'
 import { NORMALIZE_ROYALTIES } from './_app'
-import supportedChains from 'utils/chains'
+import supportedChains, { DefaultChain } from 'utils/chains'
 import Link from 'next/link'
 import ChainToggle from 'components/common/ChainToggle'
 import CollectionsTimeDropdown, {
@@ -226,9 +226,10 @@ export const getStaticProps: GetStaticProps<{
   await Promise.all(
     topRatedCollections.map(
       async (topRatedCollection: TopRatedCollection, index: number) => {
-        const chain = supportedChains.find(
-          (c) => c.routePrefix === topRatedCollection.chain_slug
-        )
+        const chain =
+          supportedChains.find(
+            (c) => c.routePrefix === topRatedCollection.chain_slug
+          ) || DefaultChain
 
         if (chain) {
           const { data } = await fetcher(
