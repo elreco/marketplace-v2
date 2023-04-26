@@ -408,6 +408,21 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   return (
     <Layout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: `{
+            "@context": "https://schema.org",
+            "@type": "Thing",
+            "name": "${ssr?.collection?.collections?.[0]?.name}",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "${ssr.reviewInsights.average_rating}",
+              "reviewCount": "${ssr.reviewInsights.count}"
+            }
+          }`
+        }}
+      />
       <Head
         ogImage={ssr?.collection?.collections?.[0]?.banner}
         title={ssr?.collection?.collections?.[0]?.name}
