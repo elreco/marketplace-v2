@@ -16,7 +16,7 @@ import { useAccount } from 'wagmi'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
 import fetcher from 'utils/fetcher'
 import { NORMALIZE_ROYALTIES } from './_app'
-import supportedChains from 'utils/chains'
+import supportedChains, { DefaultChain } from 'utils/chains'
 import Link from 'next/link'
 import ChainToggle from 'components/common/ChainToggle'
 import CollectionsTimeDropdown, {
@@ -25,9 +25,10 @@ import CollectionsTimeDropdown, {
 import { Head } from 'components/Head'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
 import { ChainContext } from 'context/ChainContextProvider'
-import { ChainCollections } from 'types'
+import { ChainCollections, TopRatedCollection } from 'types'
 import { updateCollectionsWithReviews } from 'utils/reviews'
 import LoadingSpinner from 'components/common/LoadingSpinner'
+import { TopRatedSwiper } from 'components/collections/TopRatedSwiper'
 
 const CollectionRankingsTableWrapper = lazy(
   () => import('components/rankings/CollectionRankingsTableWrapper')
@@ -79,98 +80,103 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   }
 
   return (
-    <Layout>
-      <Head />
-      <Box
-        css={{
-          p: 24,
-          height: '100%',
-          '@bp800': {
-            p: '$6',
-          },
-        }}
-      >
-        {isDisconnected && (
-          <Flex
-            direction="column"
-            align="center"
-            css={{ mx: 'auto', maxWidth: 728, pt: '$5', textAlign: 'center' }}
-          >
-            <Text style="h3" css={{ mb: 24 }}>
-              NFT Canyon Marketplace
-            </Text>
-            <Text style="body1" css={{ mb: 48 }}>
-              Buy, sell, and explore NFTs while sharing insights and opinions.
-              Elevate your NFT experience with community-driven reviews and
-              ratings.
-            </Text>
-          </Flex>
-        )}
-        <Flex css={{ my: '$6', gap: 65 }} direction="column">
-          <Flex
-            justify="between"
-            align="start"
-            css={{
-              flexDirection: 'column',
-              gap: 24,
-              '@bp800': {
-                alignItems: 'center',
-                flexDirection: 'row',
-              },
-            }}
-          >
-            <Text style="h4" as="h4">
-              Popular Collections
-            </Text>
-            <Flex align="center" css={{ gap: '$4' }}>
-              <CollectionsTimeDropdown
-                compact={compactToggleNames && isMounted}
-                option={sortByTime}
-                onOptionSelected={(option) => {
-                  setSortByTime(option)
-                }}
-              />
-              <ChainToggle />
+    <>
+      <TopRatedSwiper topRatedCollections={ssr.topRatedCollections} />
+      <Layout pt={10}>
+        <Head />
+        <Box
+          css={{
+            p: 24,
+            height: '100%',
+            '@bp800': {
+              p: '$6',
+            },
+          }}
+        >
+          {isDisconnected && (
+            <Flex
+              direction="column"
+              align="center"
+              css={{ mx: 'auto', maxWidth: 728, pt: '$2', textAlign: 'center' }}
+            >
+              <Text style="h3" css={{ mb: 24 }}>
+                NFT Canyon Marketplace
+              </Text>
+              <Text style="body1" css={{ mb: 48 }}>
+                Buy, sell, and explore NFTs while sharing insights and opinions.
+                Elevate your NFT experience with community-driven reviews and
+                ratings.
+              </Text>
             </Flex>
-          </Flex>
+          )}
 
-          {!isSSR && isMounted && (
-            <Suspense fallback={<div>Loading...</div>}>
-              <CollectionRankingsTableWrapper
-                data={data}
-                isValidating={isValidating}
-                volumeKey={volumeKey}
-              />
-            </Suspense>
-          )}
-          {isValidating && (
-            <Flex align="center" justify="center" css={{ py: '$4' }}>
-              <LoadingSpinner />
+          <Flex css={{ my: '$5', gap: 65 }} direction="column">
+            <Flex
+              justify="between"
+              align="start"
+              css={{
+                flexDirection: 'column',
+                gap: 24,
+                '@bp800': {
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                },
+              }}
+            >
+              <Text style="h4" as="h4">
+                Popular Collections
+              </Text>
+              <Flex align="center" css={{ gap: '$4' }}>
+                <CollectionsTimeDropdown
+                  compact={compactToggleNames && isMounted}
+                  option={sortByTime}
+                  onOptionSelected={(option) => {
+                    setSortByTime(option)
+                  }}
+                />
+                <ChainToggle />
+              </Flex>
             </Flex>
-          )}
-          <Box css={{ alignSelf: 'center' }}>
-            <Link href="/collection-rankings">
-              <Button
-                css={{
-                  minWidth: 224,
-                  justifyContent: 'center',
-                }}
-                size="large"
-              >
-                View All
-              </Button>
-            </Link>
-          </Box>
-        </Flex>
-        <Footer />
-      </Box>
-    </Layout>
+
+            {!isSSR && isMounted && (
+              <Suspense fallback={<div>Loading...</div>}>
+                <CollectionRankingsTableWrapper
+                  data={data}
+                  isValidating={isValidating}
+                  volumeKey={volumeKey}
+                />
+              </Suspense>
+            )}
+            {isValidating && (
+              <Flex align="center" justify="center" css={{ py: '$4' }}>
+                <LoadingSpinner />
+              </Flex>
+            )}
+            <Box css={{ alignSelf: 'center' }}>
+              <Link href="/collection-rankings">
+                <Button
+                  css={{
+                    minWidth: 224,
+                    justifyContent: 'center',
+                  }}
+                  size="large"
+                >
+                  View All
+                </Button>
+              </Link>
+            </Box>
+          </Flex>
+          <Footer />
+        </Box>
+      </Layout>
+    </>
   )
 }
 
 export const getStaticProps: GetStaticProps<{
   ssr: {
     collections: ChainCollections
+    topRatedCollections: TopRatedCollection[]
   }
 }> = async () => {
   let collectionQuery: paths['/collections/v5']['get']['parameters']['query'] =
@@ -211,12 +217,38 @@ export const getStaticProps: GetStaticProps<{
         )
     }
   })
+
   const HOST_URL = process.env.NEXT_PUBLIC_HOST_URL
-  const fetchTopRatedCollections = await fetch(`${HOST_URL}/api/reviews/topRatedCollections`)
-  const data = await fetchTopRatedCollections.json()
-  console.log(data)
+  const fetchTopRatedCollections = await fetch(
+    `${HOST_URL}/api/reviews/topRatedCollections`
+  )
+  const { data: topRatedCollections } = await fetchTopRatedCollections.json()
+
+  await Promise.all(
+    topRatedCollections.map(
+      async (topRatedCollection: TopRatedCollection, index: number) => {
+        const { data } = await fetcher(
+          `${DefaultChain.reservoirBaseUrl}/collections/v5`,
+          {
+            id: topRatedCollection.collection_id,
+          },
+          {
+            headers: {
+              'x-api-key': DefaultChain.apiKey || '',
+            },
+          }
+        )
+        if (data.collections && data.collections[0]) {
+          topRatedCollection.collection = data.collections[0]
+        } else {
+          topRatedCollections.splice(index, 1)
+        }
+      }
+    )
+  )
+
   return {
-    props: { ssr: { collections } },
+    props: { ssr: { collections, topRatedCollections } },
     revalidate: 5,
   }
 }

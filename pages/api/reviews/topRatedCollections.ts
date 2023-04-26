@@ -2,27 +2,13 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiResponse, Review } from '../../../types'
 import { supabaseClient } from '../../../utils/supabase'
 
-async function getTopRatedCollections(
-): Promise<Review[]> {
-    const today = new Date();
-  const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+async function getTopRatedCollections(): Promise<Review[]> {
+  const today = new Date()
+  const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
   try {
-      const sql = `
-      SELECT
-        collection_id,
-        AVG(rating) as avg_rating,
-        COUNT(*) as total_reviews
-      FROM
-        reviews
-      WHERE
-        created_at >= '${lastWeek.toISOString()}'
-      GROUP BY
-        collection_id
-      ORDER BY
-        avg_rating DESC
-    `;
-
-    const { data, error } = await supabaseClient.raw(sql);
+    const { data, error } = await supabaseClient
+      .from('top_collections_view')
+      .select('*')
 
     if (error) {
       throw error
