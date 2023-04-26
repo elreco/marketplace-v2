@@ -23,6 +23,7 @@ import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 import { FullscreenModal } from 'components/common/FullscreenModal'
 import { useENSResolver } from 'hooks'
 import ThemeSwitcher from 'components/navbar/ThemeSwitcher'
+import { useTheme } from 'next-themes'
 
 const HamburgerMenu = () => {
   const { address, isConnected } = useAccount()
@@ -33,7 +34,7 @@ const HamburgerMenu = () => {
     shortName: shortEnsName,
   } = useENSResolver(address)
   const { disconnect } = useDisconnect()
-
+  const { theme } = useTheme()
   const trigger = (
     <Button
       css={{ justifyContent: 'center', width: '44px', height: '44px' }}
@@ -67,12 +68,21 @@ const HamburgerMenu = () => {
         >
           <Link href="/">
             <Box css={{ width: 34, cursor: 'pointer' }}>
-              <Image
-                src="/reservoirLogo.svg"
+            {theme == 'dark' ? (
+                <Image
+                src="/logo-alone-light.png"
                 width={34}
                 height={39}
-                alt="Reservoir"
+                alt="NFT Canyon"
               />
+              ) : (
+                <Image
+                src="/logo-alone.png"
+                width={34}
+                height={39}
+                alt="NFT Canyon"
+              />
+              )}
             </Box>
           </Link>
           <RadixDialog.Close>
