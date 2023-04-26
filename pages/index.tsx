@@ -16,7 +16,7 @@ import { useAccount } from 'wagmi'
 import { useCollections } from '@reservoir0x/reservoir-kit-ui'
 import fetcher from 'utils/fetcher'
 import { NORMALIZE_ROYALTIES } from './_app'
-import supportedChains, { DefaultChain } from 'utils/chains'
+import supportedChains from 'utils/chains'
 import Link from 'next/link'
 import ChainToggle from 'components/common/ChainToggle'
 import CollectionsTimeDropdown, {
@@ -223,30 +223,36 @@ export const getStaticProps: GetStaticProps<{
     `${HOST_URL}/api/reviews/topRatedCollections`
   )
   const { data: topRatedCollections } = await fetchTopRatedCollections.json()
-
   await Promise.all(
     topRatedCollections.map(
       async (topRatedCollection: TopRatedCollection, index: number) => {
-        const { data } = await fetcher(
-          `${DefaultChain.reservoirBaseUrl}/collections/v5`,
-          {
-            id: topRatedCollection.collection_id,
-          },
-          {
-            headers: {
-              'x-api-key': DefaultChain.apiKey || '',
-            },
-          }
+        const chain = supportedChains.find(
+          (c) => c.routePrefix === topRatedCollection.chain_slug
         )
-        if (data.collections && data.collections[0]) {
-          topRatedCollection.collection = data.collections[0]
+
+        if (chain) {
+          const { data } = await fetcher(
+            `${chain.reservoirBaseUrl}/collections/v5`,
+            {
+              id: topRatedCollection.collection_id,
+            },
+            {
+              headers: {
+                'x-api-key': chain?.apiKey || '',
+              },
+            }
+          )
+          if (data.collections && data.collections[0]) {
+            topRatedCollection.collection = data.collections[0]
+          } else {
+            topRatedCollections.splice(index, 1)
+          }
         } else {
           topRatedCollections.splice(index, 1)
         }
       }
     )
   )
-
   return {
     props: { ssr: { collections, topRatedCollections } },
     revalidate: 5,

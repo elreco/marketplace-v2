@@ -9,6 +9,7 @@ export interface Review {
   created_at?: string
   updated_at?: string
   collection?: ExtendedCollectionItem
+  chain_slug?: string
 }
 
 export interface ReviewInsights {
@@ -19,6 +20,7 @@ export interface ReviewInsights {
 
 export interface TopRatedCollection {
   collection: ExtendedCollectionItem
+  chain_slug: string
   average_rating: number
   collection_id: string
   total_reviews: number

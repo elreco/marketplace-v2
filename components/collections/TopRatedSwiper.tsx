@@ -10,7 +10,6 @@ import RatingStars from 'components/RatingStars'
 import { OpenSeaVerified } from 'components/common/OpenSeaVerified'
 import Link from 'next/link'
 import Img from 'components/primitives/Img'
-import { DefaultChain } from 'utils/chains'
 
 type Props = {
   topRatedCollections: TopRatedCollection[]
@@ -70,7 +69,7 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
             />
             <ContentWrapper direction="column" align="center">
               <Link
-                href={`/collection/${DefaultChain.routePrefix}/${slide.collection?.id}`}
+                href={`/collection/${slide.chain_slug}/${slide.collection?.id}`}
                 style={{ display: 'inline-block', width: '100%', minWidth: 0 }}
               >
                 <Flex

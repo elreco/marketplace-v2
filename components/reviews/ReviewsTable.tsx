@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { ChangeEvent, FC, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
 import {
   Text,
@@ -83,6 +83,18 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
 
   const handleRatingChange = (newRating: number) => {
     setRating(newRating)
+  }
+
+  const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const currentValue = event.target.value
+    const allowedCharacters = /^[a-zA-Z0-9\s!?.,;:'"()-]*$/
+    const maxLength = 100
+    if (
+      allowedCharacters.test(currentValue) &&
+      currentValue.length <= maxLength
+    ) {
+      setComment(currentValue)
+    }
   }
 
   const handleSave = (e: React.FormEvent, review: Review) => {
@@ -248,7 +260,8 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
             <Box style={{ width: '100%' }}>
               <Input
                 value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                maxLength={100}
+                onChange={handleCommentChange}
                 type="text"
                 placeholder="Type your review (Optional)"
               />

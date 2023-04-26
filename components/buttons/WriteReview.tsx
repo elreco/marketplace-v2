@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Input, Text } from 'components/primitives'
-import { ChangeEvent, ComponentProps, FC, useEffect, useState } from 'react'
+import { ChangeEvent, ComponentProps, FC, useState } from 'react'
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { CSS } from '@stitches/react'
 import { useMarketplaceChain } from 'hooks'
@@ -44,8 +44,14 @@ const WriteReview: FC<Props> = ({
 
   const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
     const currentValue = event.target.value
-    const cleanedValue = currentValue.replace(/<[^>]*>|[^\w\s]/gi, '')
-    setComment(cleanedValue)
+    const allowedCharacters = /^[a-zA-Z0-9\s!?.,;:'"()-]*$/
+    const maxLength = 100
+    if (
+      allowedCharacters.test(currentValue) &&
+      currentValue.length <= maxLength
+    ) {
+      setComment(currentValue)
+    }
   }
 
   const handleSave = (e: React.FormEvent) => {
@@ -127,6 +133,7 @@ const WriteReview: FC<Props> = ({
               value={comment}
               onChange={handleCommentChange}
               type="text"
+              maxLength={100}
               placeholder="Type your review (Optional)"
             />
           </Box>

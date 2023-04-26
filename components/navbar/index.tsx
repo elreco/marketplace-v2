@@ -60,22 +60,21 @@ const Navbar = () => {
         <Flex align="center">
           <Link href="/">
             <Box css={{ width: 34, cursor: 'pointer' }}>
-            {theme == 'dark' ? (
+              {theme == 'dark' ? (
                 <Image
-                src="/logo-alone-light.png"
-                width={34}
-                height={39}
-                alt="NFT Canyon"
-              />
+                  src="/logo-alone-light.png"
+                  width={34}
+                  height={39}
+                  alt="NFT Canyon"
+                />
               ) : (
                 <Image
-                src="/logo-alone.png"
-                width={34}
-                height={39}
-                alt="NFT Canyon"
-              />
+                  src="/logo-alone.png"
+                  width={34}
+                  height={39}
+                  alt="NFT Canyon"
+                />
               )}
-              
             </Box>
           </Link>
         </Flex>

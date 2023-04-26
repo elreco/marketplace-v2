@@ -36,7 +36,7 @@ import { ActivityFilters } from 'components/common/ActivityFilters'
 import { MobileAttributeFilters } from 'components/collections/filters/MobileAttributeFilters'
 import { MobileActivityFilters } from 'components/common/MobileActivityFilters'
 import LoadingCard from 'components/common/LoadingCard'
-import { useMounted } from 'hooks'
+import { useMarketplaceChain, useMounted } from 'hooks'
 import { NORMALIZE_ROYALTIES } from 'pages/_app'
 import {
   faBroom,
@@ -94,6 +94,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const loadMoreObserver = useIntersectionObserver(loadMoreRef, {})
   const { addToast } = useContext(ToastContext)
+  const { routePrefix } = useMarketplaceChain()
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -109,6 +110,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
       const payload: Review = {
         collection_id: id,
+        chain_slug: routePrefix,
         rating,
         comment,
         user_id: address,
@@ -164,6 +166,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
       const payload: Review = {
         collection_id: id,
         rating,
+        chain_slug: routePrefix,
         comment,
         user_id: address,
       }
