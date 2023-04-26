@@ -15,14 +15,18 @@ import { formatNumber } from 'utils/numbers'
 type Props = {
   topRatedCollections: TopRatedCollection[]
 }
+
 const SlideInner = styled('div', {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  height: '350px',
-  marginTop: 80,
+  height: 200,
+  marginTop: 76,
   borderBottom: '1px solid $gray4',
   position: 'relative',
+  '@media (min-width: 900px)': { 
+    height: 350, marginTop: 80
+  },
 })
 
 const BackgroundWrapper = styled('div', {
