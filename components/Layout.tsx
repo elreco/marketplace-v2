@@ -4,9 +4,10 @@ import Navbar from './navbar'
 
 type Props = {
   children: ReactNode
+  pt?: number
 }
 
-const Layout: FC<Props> = ({ children }) => {
+const Layout: FC<Props> = ({ children, pt = 80 }) => {
   return (
     <>
       <Box
@@ -14,7 +15,7 @@ const Layout: FC<Props> = ({ children }) => {
           background: '$neutralBg',
           height: '100%',
           minHeight: '100vh',
-          pt: 80,
+          pt,
         }}
       >
         <Box css={{ maxWidth: 1920, mx: 'auto' }}>

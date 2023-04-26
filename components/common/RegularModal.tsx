@@ -46,10 +46,11 @@ export const RegularModal: FC<Props> = ({
               position: 'fixed',
               top: '9%',
               transformX: 'translate(-50%)',
-              width: '90vw',
+              width: '100%',
               maxWidth: '750px',
               maxHeight: '85vh',
               animation: 'contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+              minWidth: '50%',
             }}
           >
             <Flex

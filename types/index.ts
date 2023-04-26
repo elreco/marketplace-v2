@@ -17,6 +17,13 @@ export interface ReviewInsights {
   collection_id: string
 }
 
+export interface TopRatedCollection {
+  collection: ExtendedCollectionItem
+  average_rating: number
+  collection_id: string
+  total_reviews: number
+}
+
 export type ApiResponse<T> = {
   error?: string
   data: T

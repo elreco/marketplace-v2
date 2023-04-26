@@ -449,7 +449,7 @@ const TokenTableRow: FC<TokenTableRowProps> = ({
             logoHeight={14}
           />
           {token?.token?.topBid?.price?.amount?.usd ? (
-            <Text style="subtitle3"  css={{ color: '$gray11' }} ellipsify>
+            <Text style="subtitle3" css={{ color: '$gray11' }} ellipsify>
               {formatDollar(token?.token?.topBid?.price?.amount?.usd as number)}
             </Text>
           ) : null}

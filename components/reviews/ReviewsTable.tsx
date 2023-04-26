@@ -42,7 +42,7 @@ export const ReviewsTable: FC<Props> = ({
   onReviewDelete,
 }) => {
   return (
-    <Flex direction="column" css={{ width: '100%', pb: '$2' }}>
+    <Flex direction="column" css={{ width: '100%', pb: '$2', my: '$3' }}>
       <TableHeading isFromUserProfile={isFromUserProfile} />
       {reviews.map((review, i) => {
         return (
@@ -176,8 +176,9 @@ const ReviewTableRow: FC<ReviewTableRowProps> = ({
 
                   <Text
                     css={{
-                      display: 'inline-block',
+                      display: 'none',
                       minWidth: 0,
+                      '@md': { display: 'inline-block' },
                     }}
                     style="subtitle1"
                     ellipsify
