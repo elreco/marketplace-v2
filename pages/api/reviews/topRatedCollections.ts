@@ -9,6 +9,7 @@ async function getTopRatedCollections(): Promise<Review[]> {
     const { data, error } = await supabaseClient
       .from('top_collections_view')
       .select('*')
+      .limit(8)
 
     if (error) {
       throw error
