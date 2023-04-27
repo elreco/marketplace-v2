@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiResponse, Review } from '../../../types'
 import { supabaseClient } from '../../../utils/supabase'
-
+import { getToken } from "next-auth/jwt"
+const secret = process.env.NEXTAUTH_SECRET
 async function getReviewsByCollection(
   collection_id: string
 ): Promise<Review[]> {
@@ -96,9 +97,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse<Review[] | Review>>
 ) {
+  const token = await getToken({ req, secret })
   if (req.method === 'POST') {
     const review: Review = req.body
-
+    if (token?.sub !== review.user_id) {
+      res.status(403).json({ data: [], error: 'Not authorized' })
+      return
+    }
     const addedReview = await addReview(review)
     if (addedReview) {
       res.status(200).json({ data: addedReview })

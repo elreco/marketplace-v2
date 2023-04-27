@@ -33,6 +33,8 @@ import ToastContextProvider from 'context/ToastContextProvider'
 import supportedChains from 'utils/chains'
 import { useMarketplaceChain } from 'hooks'
 import ChainContextProvider from 'context/ChainContextProvider'
+import { RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
+import { SessionProvider } from "next-auth/react"
 
 //CONFIGURABLE: Use nextjs to load your own custom font: https://nextjs.org/docs/basic-features/font-optimization
 const inter = Inter({
@@ -135,7 +137,7 @@ function MyApp({
     try {
       const url = new URL(process.env.NEXT_PUBLIC_HOST_URL)
       source = url.host
-    } catch (e) {}
+    } catch (e) { }
   }
 
   return (
@@ -172,15 +174,19 @@ function MyApp({
           >
             <CartProvider>
               <Tooltip.Provider>
-                <RainbowKitProvider
-                  chains={chains}
-                  theme={rainbowKitTheme}
-                  modalSize="compact"
-                >
-                  <ToastContextProvider>
-                    <FunctionalComponent {...pageProps} />
-                  </ToastContextProvider>
-                </RainbowKitProvider>
+              <SessionProvider refetchInterval={0} session={pageProps.session}>
+                <RainbowKitSiweNextAuthProvider>
+                  <RainbowKitProvider
+                    chains={chains}
+                    theme={rainbowKitTheme}
+                    modalSize="compact"
+                  >
+                    <ToastContextProvider>
+                      <FunctionalComponent {...pageProps} />
+                    </ToastContextProvider>
+                  </RainbowKitProvider>
+                </RainbowKitSiweNextAuthProvider>
+                </SessionProvider>
               </Tooltip.Provider>
             </CartProvider>
           </ReservoirKitProvider>
