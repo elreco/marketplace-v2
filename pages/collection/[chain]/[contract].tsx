@@ -420,7 +420,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               "ratingValue": "${ssr.reviewInsights.average_rating}",
               "reviewCount": "${ssr.reviewInsights.count}"
             }
-          }`
+          }`,
         }}
       />
       <Head

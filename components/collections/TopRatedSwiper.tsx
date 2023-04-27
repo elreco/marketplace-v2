@@ -24,8 +24,9 @@ const SlideInner = styled('div', {
   marginTop: 76,
   borderBottom: '1px solid $gray4',
   position: 'relative',
-  '@media (min-width: 900px)': { 
-    height: 350, marginTop: 80
+  '@media (min-width: 900px)': {
+    height: 350,
+    marginTop: 80,
   },
 })
 

@@ -19,7 +19,7 @@ import { WagmiConfig, createClient, configureChains } from 'wagmi'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-
+import { Analytics } from '@vercel/analytics/react'
 import {
   ReservoirKitProvider,
   darkTheme as reservoirDarkTheme,
@@ -139,51 +139,54 @@ function MyApp({
   }
 
   return (
-    <HotkeysProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        value={{
-          dark: darkTheme.className,
-          light: 'light',
-        }}
-      >
-        <ReservoirKitProvider
-          options={{
-            //CONFIGURABLE: Override any configuration available in RK: https://docs.reservoir.tools/docs/reservoirkit-ui#configuring-reservoirkit-ui
-            // Note that you should at the very least configure the source with your own domain
-            chains: supportedChains.map(({ proxyApi, id }) => {
-              return {
-                id,
-                baseApiUrl: `${baseUrl}${proxyApi}`,
-                default: marketplaceChain.id === id,
-              }
-            }),
-            source: source,
-            normalizeRoyalties: NORMALIZE_ROYALTIES,
-            disablePoweredByReservoir: true,
-            marketplaceFee: 100,
-            marketplaceFeeRecipient:
-              '0xe0C5123B0FD1A7D94bB8D84bBAF1026B699C6dC6',
+    <>
+      <Analytics />
+      <HotkeysProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          value={{
+            dark: darkTheme.className,
+            light: 'light',
           }}
-          theme={reservoirKitTheme}
         >
-          <CartProvider>
-            <Tooltip.Provider>
-              <RainbowKitProvider
-                chains={chains}
-                theme={rainbowKitTheme}
-                modalSize="compact"
-              >
-                <ToastContextProvider>
-                  <FunctionalComponent {...pageProps} />
-                </ToastContextProvider>
-              </RainbowKitProvider>
-            </Tooltip.Provider>
-          </CartProvider>
-        </ReservoirKitProvider>
-      </ThemeProvider>
-    </HotkeysProvider>
+          <ReservoirKitProvider
+            options={{
+              //CONFIGURABLE: Override any configuration available in RK: https://docs.reservoir.tools/docs/reservoirkit-ui#configuring-reservoirkit-ui
+              // Note that you should at the very least configure the source with your own domain
+              chains: supportedChains.map(({ proxyApi, id }) => {
+                return {
+                  id,
+                  baseApiUrl: `${baseUrl}${proxyApi}`,
+                  default: marketplaceChain.id === id,
+                }
+              }),
+              source: source,
+              normalizeRoyalties: NORMALIZE_ROYALTIES,
+              disablePoweredByReservoir: true,
+              marketplaceFee: 100,
+              marketplaceFeeRecipient:
+                '0xe0C5123B0FD1A7D94bB8D84bBAF1026B699C6dC6',
+            }}
+            theme={reservoirKitTheme}
+          >
+            <CartProvider>
+              <Tooltip.Provider>
+                <RainbowKitProvider
+                  chains={chains}
+                  theme={rainbowKitTheme}
+                  modalSize="compact"
+                >
+                  <ToastContextProvider>
+                    <FunctionalComponent {...pageProps} />
+                  </ToastContextProvider>
+                </RainbowKitProvider>
+              </Tooltip.Provider>
+            </CartProvider>
+          </ReservoirKitProvider>
+        </ThemeProvider>
+      </HotkeysProvider>
+    </>
   )
 }
 
