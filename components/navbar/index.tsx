@@ -141,6 +141,9 @@ const Navbar = () => {
             <Link href="/portfolio">
               <NavItem active={router.pathname == '/portfolio'}>Sell</NavItem>
             </Link>
+            <Link href="https://blog.nftcanyon.io">
+              <NavItem>Blog</NavItem>
+            </Link>
           </Flex>
         </Flex>
       </Box>
