@@ -146,7 +146,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
             </Flex>
           </Flex>
           {!isSSR && isMounted && (
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<Text style="subtitle2">Loading...</Text>}>
               <CollectionRankingsTableWrapper
                 data={data}
                 isValidating={isValidating}

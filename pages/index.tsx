@@ -81,7 +81,9 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
 
   return (
     <>
-      {isMounted && <TopRatedSwiper topRatedCollections={ssr.topRatedCollections} />}
+      {isMounted && (
+        <TopRatedSwiper topRatedCollections={ssr.topRatedCollections} />
+      )}
       <Layout pt={10}>
         <Head />
         <Box
