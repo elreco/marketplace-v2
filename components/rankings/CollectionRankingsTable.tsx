@@ -150,6 +150,21 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
                 textStyle="subtitle2"
               />
             </Flex>
+            <Flex align="center" css={{ mt: '$1' }}>
+              <Text css={{ mr: '$1', color: '$gray11' }} style="body3">
+                Rating
+              </Text>
+              {collection?.reviewsAverageRating &&
+              collection?.reviewsAverageRating > 0 ? (
+                <RatingStars
+                  rating={collection?.reviewsAverageRating}
+                  readOnly
+                  isRatingTextSmall
+                />
+              ) : (
+                '-'
+              )}
+            </Flex>
           </Box>
 
           <Flex direction="column" align="end" css={{ gap: '$1' }}>
