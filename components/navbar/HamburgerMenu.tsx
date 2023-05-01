@@ -253,8 +253,7 @@ const HamburgerMenu = () => {
                 </Text>
               </Link>
               <Anchor
-                href="https://docs.reservoir.tools/docs"
-                target="_blank"
+                href="https://blog.nftcanyon.io"
                 css={{
                   borderBottom: '1px solid $gray4',
                   cursor: 'pointer',
@@ -263,7 +262,7 @@ const HamburgerMenu = () => {
                   width: '100%',
                 }}
               >
-                <Text style="subtitle1">Docs</Text>
+                <Text style="subtitle1">Blog</Text>
               </Anchor>
             </Flex>
             <Box>

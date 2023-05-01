@@ -1,4 +1,4 @@
-import { Text, Flex } from 'components/primitives'
+import { Text, Flex, Box } from 'components/primitives'
 import { FC } from 'react'
 import { Autoplay } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -11,6 +11,8 @@ import { OpenSeaVerified } from 'components/common/OpenSeaVerified'
 import Link from 'next/link'
 import Img from 'components/primitives/Img'
 import { formatNumber } from 'utils/numbers'
+import { useMediaQuery } from 'react-responsive'
+import { useMounted } from 'hooks'
 
 type Props = {
   topRatedCollections: TopRatedCollection[]
@@ -54,6 +56,8 @@ const ContentWrapper = styled(Flex, {
   zIndex: 2,
 })
 export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
+  const isMounted = useMounted()
+  const isSmallDevice = useMediaQuery({ maxWidth: 905 }) && isMounted
   return (
     <Swiper
       modules={[Autoplay]}
@@ -92,23 +96,22 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
                     src={slide.collection?.image as string}
                     css={{
                       borderRadius: 8,
-                      width: 56,
-                      height: 56,
+                      width: isSmallDevice ? 36 : 56,
+                      height: isSmallDevice ? 36 : 56,
                       objectFit: 'cover',
                     }}
                     alt="Collection Image"
-                    width={56}
-                    height={56}
+                    width={isSmallDevice ? 36 : 56}
+                    height={isSmallDevice ? 36 : 56}
                     unoptimized
                   />
 
                   <Text
                     css={{
-                      display: 'none',
+                      display: 'inline-block',
                       minWidth: 0,
-                      '@md': { display: 'inline-block' },
                     }}
-                    style="h3"
+                    style={isSmallDevice ? 'h6' : 'h3'}
                     ellipsify
                   >
                     {slide.collection?.name}
@@ -120,15 +123,17 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
                   />
                 </Flex>
               </Link>
-              <RatingStars
-                starSize="lg"
-                readOnly
-                rating={slide.average_rating}
-              ></RatingStars>
-              <Text css={{ mt: '$2' }} style="subtitle1">
-                {formatNumber(slide.total_reviews)}{' '}
-                {slide.total_reviews > 1 ? 'ratings' : 'rating'}
-              </Text>
+              <Flex css={{ mt: '$2' }} align="center" direction="column">
+                <RatingStars
+                  starSize="lg"
+                  readOnly
+                  rating={slide.average_rating}
+                ></RatingStars>
+                <Text css={{ mt: '$2' }} style="subtitle1">
+                  {formatNumber(slide.total_reviews)}{' '}
+                  {slide.total_reviews > 1 ? 'ratings' : 'rating'}
+                </Text>
+              </Flex>
             </ContentWrapper>
           </SlideInner>
         </SwiperSlide>

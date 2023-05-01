@@ -156,7 +156,7 @@ const CollectionTableRow: FC<CollectionTableRowProps> = ({
                 ellipsify
                 css={{ color: '$gray11', ml: '$2' }}
               >
-                {collection?.collection?.name}
+                {collection?.collection?.name} sdgsdg
               </Text>
             </Flex>
           </Link>
