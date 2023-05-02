@@ -1,5 +1,5 @@
 import { Text, Flex, Box } from 'components/primitives'
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Autoplay } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
@@ -13,6 +13,7 @@ import Img from 'components/primitives/Img'
 import { formatNumber } from 'utils/numbers'
 import { useMediaQuery } from 'react-responsive'
 import { useMounted } from 'hooks'
+import { useTheme } from 'next-themes'
 
 type Props = {
   topRatedCollections: TopRatedCollection[]
@@ -40,24 +41,55 @@ const BackgroundWrapper = styled('div', {
   left: 0,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity here (0.5 in this case)
-    zIndex: 1,
+  variants: {
+    backgroundColor: {
+      dark: {
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+      light: {
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        },
+      },
+    },
   },
 })
+
 const ContentWrapper = styled(Flex, {
   position: 'relative',
   zIndex: 2,
 })
+
 export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
   const isMounted = useMounted()
   const isSmallDevice = useMediaQuery({ maxWidth: 905 }) && isMounted
+  const { theme } = useTheme()
+  const setBackgroundImage = (image: string | undefined) => {
+    if (image) {
+      return image
+    }
+    if (theme === 'dark') {
+      return '/pattern-black.png'
+    }
+    return '/pattern-white.png'
+  }
+
   return (
     <Swiper
       modules={[Autoplay]}
@@ -69,13 +101,14 @@ export const TopRatedSwiper: FC<Props> = ({ topRatedCollections }) => {
       pagination={{ clickable: true }}
       navigation
     >
-      {topRatedCollections.map((slide, index) => (
+      {isMounted && topRatedCollections.map((slide, index) => (
         <SwiperSlide key={index}>
           <SlideInner>
             <BackgroundWrapper
               style={{
-                backgroundImage: `url(${slide.collection?.banner})`,
+                backgroundImage: `url(${setBackgroundImage(slide.collection?.banner)})`
               }}
+              backgroundColor={theme === 'dark' ? 'dark' : 'light'}
             />
             <ContentWrapper direction="column" align="center">
               <Link
