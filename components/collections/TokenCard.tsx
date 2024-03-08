@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { SyntheticEvent, useContext } from 'react'
 import { MutatorCallback } from 'swr'
 import { formatNumber } from 'utils/numbers'
-import { Address } from 'wagmi'
+import { Address } from 'viem'
 
 type TokenCardProps = {
   token: ReturnType<typeof useDynamicTokens>['data'][0]
@@ -54,6 +54,12 @@ export default ({
   const isOwner = token?.token?.owner?.toLowerCase() !== address?.toLowerCase()
 
   const is1155 = token?.token?.kind === 'erc1155'
+
+  const isBlurSource = token?.market?.floorAsk?.source?.name === 'Blur'
+  const isBelowSolverCapacity =
+    BigInt(token?.market?.floorAsk?.price?.amount?.raw || 0) <
+    25000000000000000000n
+  const intentFillingEnabled = !is1155 && isBlurSource && isBelowSolverCapacity
 
   return (
     <Box
@@ -333,6 +339,7 @@ export default ({
           <BuyNow
             tokenId={token.token?.tokenId}
             contract={token.token?.contract}
+            executionMethod={intentFillingEnabled ? 'intent' : undefined}
             mutate={mutate}
             buttonCss={{
               justifyContent: 'center',

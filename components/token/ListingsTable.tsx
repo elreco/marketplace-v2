@@ -155,7 +155,7 @@ const ListingTableRow: FC<ListingTableRowProps> = ({
   mutate,
 }) => {
   const { displayName: fromDisplayName } = useENSResolver(listing.maker)
-  const { reservoirBaseUrl } = useMarketplaceChain()
+  const { proxyApi } = useMarketplaceChain()
   const expiration = useTimeSince(listing?.expiration)
   const expirationText = expiration ? `Expires ${expiration}` : null
 
@@ -167,9 +167,16 @@ const ListingTableRow: FC<ListingTableRowProps> = ({
 
   const listingSourceName = listing?.source?.name
   const listingSourceDomain = listing?.source?.domain
-  const listingSourceLogo = `${reservoirBaseUrl}/redirect/sources/${
+  const listingSourceLogo = `${
+    process.env.NEXT_PUBLIC_PROXY_URL
+  }${proxyApi}/redirect/sources/${
     listingSourceDomain || listingSourceName
   }/logo/v2`
+
+  const isBelowSolverCapacity =
+    BigInt(listing?.price?.amount?.raw || 0) < 25000000000000000000n
+  const isBlurSource = listingSourceName === 'Blur'
+  const intentFillingEnabled = !is1155 && isBlurSource && isBelowSolverCapacity
 
   return (
     <TableRow
@@ -251,6 +258,7 @@ const ListingTableRow: FC<ListingTableRowProps> = ({
               tokenId={listing.criteria?.data?.token?.tokenId || tokenId}
               contract={contract}
               orderId={listing.id}
+              executionMethod={intentFillingEnabled ? 'intent' : undefined}
               buttonChildren="Buy"
               buttonCss={{ fontSize: 14, px: '$4', py: '$2', minHeight: 36 }}
               mutate={mutate}

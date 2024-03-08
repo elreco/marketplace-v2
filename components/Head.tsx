@@ -5,6 +5,7 @@ type Props = {
   ogImage?: string
   title?: string
   description?: string
+  metatags?: React.ReactNode
 }
 
 /**
@@ -17,6 +18,7 @@ export const Head: FC<Props> = ({
   ogImage = '/og-image.png',
   title = 'NFT Canyon | NFT Marketplace',
   description = 'Buy, sell, and explore NFTs.',
+  metatags = null,
 }) => {
   return (
     <NextHead>
@@ -47,6 +49,9 @@ export const Head: FC<Props> = ({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content="Reservoir NFT Explorer Banner" />
+
+      {/* Child Meta tags */}
+      {metatags && metatags}
     </NextHead>
   )
 }

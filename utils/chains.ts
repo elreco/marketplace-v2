@@ -1,5 +1,5 @@
 import { Currency } from '@reservoir0x/reservoir-kit-ui'
-import { reservoirChains } from '@reservoir0x/reservoir-sdk'
+import { reservoirChains, customChains } from '@reservoir0x/reservoir-sdk'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
@@ -16,6 +16,7 @@ import {
   base,
   arbitrumNova,
   scroll,
+  opBNB,
 } from 'wagmi/chains'
 import usdcContracts from './usdcContracts'
 
@@ -37,6 +38,7 @@ export type ReservoirChain = Chain & {
   listingCurrencies?: Currency[]
   oracleBidsEnabled?: boolean
   checkPollingInterval?: number
+  paperContractId?: string
 }
 
 const nativeCurrencyBase = {
@@ -85,6 +87,7 @@ export const DefaultChain: ReservoirChain = {
   ],
   oracleBidsEnabled: true,
   checkPollingInterval: reservoirChains.mainnet.checkPollingInterval,
+  paperContractId: process.env.PAPER_ETHEREUM_CONTRACT_ID,
 }
 
 export default [
@@ -99,6 +102,7 @@ export default [
     coingeckoId: 'matic-network',
     collectionSetId: process.env.NEXT_PUBLIC_POLYGON_COLLECTION_SET_ID,
     community: process.env.NEXT_PUBLIC_POLYGON_COMMUNITY,
+    paperContractId: process.env.PAPER_POLYGON_CONTRACT_ID,
     wssUrl: 'wss://ws-polygon.reservoir.tools',
     listingCurrencies: [
       {
@@ -142,16 +146,16 @@ export default [
     checkPollingInterval: reservoirChains.arbitrum.checkPollingInterval,
   },
   {
-    ...arbitrumNova,
-    lightIconUrl: '/icons/arbitrum-nova-icon-dark.svg',
-    darkIconUrl: '/icons/arbitrum-nova-icon-light.svg',
-    reservoirBaseUrl: reservoirChains.arbitrumNova.baseApiUrl,
-    proxyApi: '/api/reservoir/arbitrum-nova',
-    routePrefix: 'arbitrum-nova',
+    ...base,
+    lightIconUrl: '/icons/base-icon-dark.svg',
+    darkIconUrl: '/icons/base-icon-light.svg',
+    reservoirBaseUrl: reservoirChains.base.baseApiUrl,
+    proxyApi: '/api/reservoir/base',
+    routePrefix: 'base',
     coingeckoId: 'ethereum',
-    collectionSetId: process.env.NEXT_PUBLIC_ARBITRUM_NOVA_COLLECTION_SET_ID,
-    community: process.env.NEXT_PUBLIC_ARBITRUM_NOVA_COMMUNITY,
-    checkPollingInterval: reservoirChains.arbitrumNova.checkPollingInterval,
+    collectionSetId: process.env.NEXT_PUBLIC_BASE_COLLECTION_SET_ID,
+    community: process.env.NEXT_PUBLIC_BASE_COMMUNITY,
+    checkPollingInterval: reservoirChains.base.checkPollingInterval,
   },
   {
     ...optimism,
@@ -206,6 +210,26 @@ export default [
     checkPollingInterval: reservoirChains.bsc.checkPollingInterval,
   },
   {
+    ...opBNB,
+    lightIconUrl: '/icons/bsc-icon-dark.svg',
+    darkIconUrl: '/icons/bsc-icon-light.svg',
+    reservoirBaseUrl: reservoirChains.opBnb.baseApiUrl,
+    proxyApi: '/api/reservoir/opbnb',
+    routePrefix: 'opbnb',
+    coingeckoId: 'binancecoin',
+    checkPollingInterval: reservoirChains.opBnb.checkPollingInterval,
+  },
+  {
+    ...customChains.ancient8,
+    lightIconUrl: '/icons/ancient8-icon-dark.svg',
+    darkIconUrl: '/icons/ancient8-icon-light.svg',
+    reservoirBaseUrl: reservoirChains.ancient8.baseApiUrl,
+    proxyApi: '/api/reservoir/ancient8',
+    routePrefix: 'ancient8',
+    coingeckoId: 'ethereum',
+    checkPollingInterval: reservoirChains.ancient8.checkPollingInterval,
+  },
+  {
     ...avalanche,
     lightIconUrl: '/icons/avalanche-icon-dark.svg',
     darkIconUrl: '/icons/avalanche-icon-light.svg',
@@ -218,16 +242,16 @@ export default [
     checkPollingInterval: reservoirChains.avalanche.checkPollingInterval,
   },
   {
-    ...base,
-    lightIconUrl: '/icons/base-icon-dark.svg',
-    darkIconUrl: '/icons/base-icon-light.svg',
-    reservoirBaseUrl: reservoirChains.base.baseApiUrl,
-    proxyApi: '/api/reservoir/base',
-    routePrefix: 'base',
+    ...arbitrumNova,
+    lightIconUrl: '/icons/arbitrum-nova-icon-dark.svg',
+    darkIconUrl: '/icons/arbitrum-nova-icon-light.svg',
+    reservoirBaseUrl: reservoirChains.arbitrumNova.baseApiUrl,
+    proxyApi: '/api/reservoir/arbitrum-nova',
+    routePrefix: 'arbitrum-nova',
     coingeckoId: 'ethereum',
-    collectionSetId: process.env.NEXT_PUBLIC_BASE_COLLECTION_SET_ID,
-    community: process.env.NEXT_PUBLIC_BASE_COMMUNITY,
-    checkPollingInterval: reservoirChains.base.checkPollingInterval,
+    collectionSetId: process.env.NEXT_PUBLIC_ARBITRUM_NOVA_COLLECTION_SET_ID,
+    community: process.env.NEXT_PUBLIC_ARBITRUM_NOVA_COMMUNITY,
+    checkPollingInterval: reservoirChains.arbitrumNova.checkPollingInterval,
   },
   {
     ...linea,
@@ -245,9 +269,8 @@ export default [
     ...polygonZkEvm,
     lightIconUrl: '/icons/polygon-zkevm-icon-dark.svg',
     darkIconUrl: '/icons/polygon-zkevm-icon-light.svg',
-    reservoirBaseUrl: 'https://api-polygon-zkevm.reservoir.tools',
+    reservoirBaseUrl: reservoirChains.polygonZkEvm.baseApiUrl,
     proxyApi: '/api/reservoir/polygon-zkevm',
-
     routePrefix: 'polygon-zkevm',
     apiKey: process.env.RESERVOIR_API_KEY,
     coingeckoId: 'ethereum',
@@ -260,7 +283,7 @@ export default [
     name: 'zkSync',
     lightIconUrl: '/icons/zksync-icon-dark.svg',
     darkIconUrl: '/icons/zksync-icon-light.svg',
-    reservoirBaseUrl: 'https://api-zksync.reservoir.tools',
+    reservoirBaseUrl: reservoirChains.zkSync.baseApiUrl,
     proxyApi: '/api/reservoir/zksync',
     routePrefix: 'zksync',
     apiKey: process.env.RESERVOIR_API_KEY,
@@ -274,7 +297,7 @@ export default [
     name: 'Scroll',
     lightIconUrl: '/icons/scroll-testnet-icon-dark.svg',
     darkIconUrl: '/icons/scroll-testnet-icon-light.svg',
-    reservoirBaseUrl: 'https://api-scroll.reservoir.tools',
+    reservoirBaseUrl: reservoirChains.scroll.baseApiUrl,
     proxyApi: '/api/reservoir/scroll',
     routePrefix: 'scroll',
     apiKey: process.env.RESERVOIR_API_KEY,
@@ -282,5 +305,47 @@ export default [
     collectionSetId: process.env.NEXT_PUBLIC_SCROLL_COLLECTION_SET_ID,
     community: process.env.NEXT_PUBLIC_SCROLL_COMMUNITY,
     checkPollingInterval: reservoirChains.scroll.checkPollingInterval,
+  },
+  {
+    ...customChains.apexPop,
+    name: 'Apex',
+    lightIconUrl: '/icons/apex-pop-icon-light.svg',
+    darkIconUrl: '/icons/apex-pop-icon-dark.svg',
+    reservoirBaseUrl: reservoirChains.apexPop.baseApiUrl,
+    proxyApi: '/api/reservoir/apex',
+    routePrefix: 'apex',
+    apiKey: process.env.RESERVOIR_API_KEY,
+    coingeckoId: 'ethereum',
+    collectionSetId: process.env.NEXT_PUBLIC_APE_COLLECTION_SET_ID,
+    community: process.env.NEXT_PUBLIC_APEX_COMMUNITY,
+    checkPollingInterval: reservoirChains.apexPop.checkPollingInterval,
+  },
+  {
+    ...customChains.blast,
+    name: 'Blast',
+    lightIconUrl: '/icons/blast-icon-light.svg',
+    darkIconUrl: '/icons/blast-icon-dark.svg',
+    reservoirBaseUrl: reservoirChains.blast.baseApiUrl,
+    proxyApi: '/api/reservoir/blast',
+    routePrefix: 'blast',
+    apiKey: process.env.RESERVOIR_API_KEY,
+    coingeckoId: 'ethereum',
+    collectionSetId: process.env.NEXT_PUBLIC_BLAST_COLLECTION_SET_ID,
+    community: process.env.NEXT_PUBLIC_BLAST_COMMUNITY,
+    checkPollingInterval: reservoirChains.blast.checkPollingInterval,
+  },
+  {
+    ...customChains.astarZkEVM,
+    name: 'Astar ZkEVM',
+    lightIconUrl: '/icons/astar-zkevm-icon-light.svg',
+    darkIconUrl: '/icons/astar-zkevm-icon-dark.svg',
+    reservoirBaseUrl: reservoirChains.astarZkEVM.baseApiUrl,
+    proxyApi: '/api/reservoir/astar-zkevm',
+    routePrefix: 'astar-zkevm',
+    apiKey: process.env.RESERVOIR_API_KEY,
+    coingeckoId: 'ethereum',
+    collectionSetId: process.env.NEXT_PUBLIC_ASTAR_ZKEVM_COLLECTION_SET_ID,
+    community: process.env.NEXT_PUBLIC_ASTAR_ZKEVM_COMMUNITY,
+    checkPollingInterval: reservoirChains.astarZkEVM.checkPollingInterval,
   },
 ] as ReservoirChain[]

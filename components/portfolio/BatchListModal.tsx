@@ -17,7 +17,7 @@ import dayjs from 'dayjs'
 import { useMarketplaceChain } from 'hooks'
 import { UserToken } from 'pages/portfolio/[[...address]]'
 import { FC, useCallback, useEffect, useState } from 'react'
-import { useNetwork, useWalletClient, useSwitchNetwork } from 'wagmi'
+import { useAccount, useWalletClient, useSwitchChain, useConfig } from 'wagmi'
 import { ApprovalCollapsible } from './ApprovalCollapsible'
 import { formatUnits, parseUnits, zeroAddress } from 'viem'
 import useOnChainRoyalties, {
@@ -44,29 +44,19 @@ type BatchListModalStepData = {
 type Props = {
   listings: BatchListing[]
   disabled: boolean
-  selectedMarketplaces: Marketplace[]
-  onChainRoyalties: ReturnType<typeof useOnChainRoyalties>['data']
   onCloseComplete?: () => void
 }
 
 const orderFee = process.env.NEXT_PUBLIC_MARKETPLACE_FEE
 const orderFees = orderFee ? [orderFee] : []
 
-const BatchListModal: FC<Props> = ({
-  listings,
-  disabled,
-  selectedMarketplaces,
-  onChainRoyalties,
-  onCloseComplete,
-}) => {
+const BatchListModal: FC<Props> = ({ listings, disabled, onCloseComplete }) => {
   const [open, setOpen] = useState(false)
   const { data: wallet } = useWalletClient()
   const { openConnectModal } = useConnectModal()
-  const { chain: activeChain } = useNetwork()
+  const { chain: activeChain } = useAccount()
   const marketplaceChain = useMarketplaceChain()
-  const { switchNetworkAsync } = useSwitchNetwork({
-    chainId: marketplaceChain.id,
-  })
+  const { switchChainAsync } = useSwitchChain()
   const isInTheWrongNetwork = Boolean(
     wallet && activeChain?.id !== marketplaceChain.id
   )
@@ -81,30 +71,9 @@ const BatchListModal: FC<Props> = ({
     []
   )
 
-  const getUniqueMarketplaces = useCallback(
-    (listings: BatchListModalStepData['listings']): Marketplace[] => {
-      const marketplaces: Marketplace[] = []
-      listings.forEach((listing) => {
-        const marketplace = selectedMarketplaces.find(
-          (m) => m.orderbook === listing.listing.orderbook
-        )
-        if (marketplace && !marketplaces.includes(marketplace)) {
-          marketplaces.push(marketplace)
-        }
-      })
-      return marketplaces
-    },
-    [listings]
-  )
-
   useEffect(() => {
     if (stepData) {
       const orderKind = stepData.listings[0].listing.orderKind || 'exchange'
-      const marketplaces = getUniqueMarketplaces(stepData.listings)
-      const marketplaceNames = marketplaces
-        .map((marketplace) => marketplace.name)
-        .join(' and ')
-      setUniqueMarketplaces(marketplaces)
 
       switch (stepData.currentStep.kind) {
         case 'transaction': {
@@ -116,9 +85,7 @@ const BatchListModal: FC<Props> = ({
           break
         }
         case 'signature': {
-          setStepTitle(
-            `Confirm listings on ${marketplaceNames}\nin your wallet`
-          )
+          setStepTitle(`Confirm listings in your wallet`)
           break
         }
       }
@@ -176,29 +143,6 @@ const BatchListModal: FC<Props> = ({
 
       if (expirationTime) {
         convertedListing.expirationTime = expirationTime
-      }
-
-      const onChainRoyalty =
-        onChainRoyalties && onChainRoyalties[i] ? onChainRoyalties[i] : null
-      if (onChainRoyalty && listing.orderKind?.includes('seaport')) {
-        convertedListing.automatedRoyalties = false
-        const royaltyData = onChainRoyalty.result as OnChainRoyaltyReturnType
-        const royalties = royaltyData[0].map((recipient, i) => {
-          const bps = Math.floor(
-            (parseFloat(
-              formatUnits(
-                royaltyData[1][i],
-                marketplaceChain?.nativeCurrency.decimals || 18
-              )
-            ) /
-              1) *
-              10000
-          )
-          return `${recipient}:${bps}`
-        })
-        if (royalties.length > 0) {
-          convertedListing.fees = [...royalties]
-        }
       }
 
       batchListingData.push({
@@ -268,7 +212,7 @@ const BatchListModal: FC<Props> = ({
         )
         setTransactionError(transactionError)
       })
-  }, [client, listings, wallet, onChainRoyalties])
+  }, [client, listings, wallet])
 
   const trigger = (
     <Button disabled={disabled} onClick={listTokens}>
@@ -280,8 +224,10 @@ const BatchListModal: FC<Props> = ({
       <Button
         disabled={disabled}
         onClick={async () => {
-          if (isInTheWrongNetwork && switchNetworkAsync) {
-            const chain = await switchNetworkAsync(marketplaceChain.id)
+          if (isInTheWrongNetwork && switchChainAsync) {
+            const chain = await switchChainAsync({
+              chainId: marketplaceChain.id,
+            })
             if (chain.id !== marketplaceChain.id) {
               return false
             }
@@ -357,7 +303,6 @@ const BatchListModal: FC<Props> = ({
                             key={i}
                             item={item}
                             batchListingData={stepData.listings}
-                            selectedMarketplaces={selectedMarketplaces}
                             open={item.status == 'incomplete'}
                           />
                         )

@@ -226,13 +226,77 @@ const IndexPage: NextPage<Props> = ({ assetId, ssr }) => {
     ? token.token.name
     : `${token?.token?.tokenId} - ${token?.token?.collection?.name}`
 
+  const base64EncodedToken = btoa(encodeURIComponent(JSON.stringify(token)))
+
+  const mintData = collection?.mintStages?.find(
+    (stage) => stage.kind === 'public'
+  )
+
+  const mintPriceDecimal = mintData?.price?.amount?.decimal
+  const mintCurrency = mintData?.price?.currency?.symbol?.toUpperCase()
+
+  const mintPrice =
+    typeof mintPriceDecimal === 'number' &&
+    mintPriceDecimal !== null &&
+    mintPriceDecimal !== undefined
+      ? mintPriceDecimal === 0
+        ? 'Free'
+        : `${mintPriceDecimal} ${mintCurrency}`
+      : undefined
+
   return (
     <Layout>
       <Head
-        ogImage={token?.token?.image || collection?.banner}
+        ogImage={`/api/og/token?token=${encodeURIComponent(
+          base64EncodedToken
+        )}`}
         title={pageTitle}
         description={collection?.description as string}
+        metatags={
+          <>
+            {collection?.isMinting && (
+              <>
+                <meta
+                  property="og:title"
+                  content={`Farcaster: ${token?.token?.name}`}
+                />
+                <meta
+                  property="fc:frame:button:1"
+                  content={`Mint ${mintPrice}`}
+                />
+                <meta property="fc:frame:button:1:action" content="mint" />
+                <meta
+                  property="fc:frame:button:1:target"
+                  content={`eip155:${token?.token?.chainId}:${token?.token?.contract}:${token?.token?.tokenId}`}
+                />
+              </>
+            )}
+
+            {token?.market?.floorAsk?.price?.amount?.native && (
+              <>
+                <meta
+                  property="fc:frame:button:2"
+                  content={`Buy ${
+                    token.market.floorAsk.price.amount.native
+                  } ${token.market.floorAsk.price.currency?.symbol?.toUpperCase()}`}
+                />
+                <meta property="fc:frame:button:2:action" content="link" />
+                <meta
+                  property="fc:frame:button:2:target"
+                  content={`${process.env.NEXT_PUBLIC_HOST_URL}${router.asPath}`}
+                />
+              </>
+            )}
+            <meta
+              name="twitter:image"
+              content={`/api/og/token?token=${encodeURIComponent(
+                base64EncodedToken
+              )}`}
+            />
+          </>
+        }
       />
+
       <Flex
         justify="center"
         css={{
@@ -671,7 +735,9 @@ export const getServerSideProps: GetServerSideProps<{
       'Cache-Control',
       'public, s-maxage=30, stale-while-revalidate=60'
     )
-  } catch (e) {}
+  } catch (e) {
+    console.log(e)
+  }
 
   return {
     props: {
